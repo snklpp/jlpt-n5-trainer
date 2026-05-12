@@ -1214,8 +1214,16 @@ function getWrongAnswers(word, pool) {
   return shuffle(allWords.filter(w => w[2] !== word[2])).slice(0, 3);
 }
 
+function buildQ(word, gi) {
+  const pool = GROUPS[gi].words;
+  const wrongs = getWrongAnswers(word, pool);
+  const choices = shuffle([word, ...wrongs]);
+  return { word, choices, correctIdx: choices.indexOf(word), answered: null };
+}
+
 function buildQuestions(wordPool, count) {
   const picked = shuffle([...wordPool]).slice(0, count);
+  const gi = GROUPS.findIndex(g => g.words.includes(picked[0]));
   return picked.map(word => {
     const wrongs = getWrongAnswers(word, wordPool);
     const choices = shuffle([word, ...wrongs]);
@@ -1223,10 +1231,17 @@ function buildQuestions(wordPool, count) {
   });
 }
 
-// Quiz ALL words in the group
+// Mastery quiz: cycle until every word answered correctly
 function generateQuiz(gi) {
   const words = GROUPS[gi].words;
-  return { groupIdx: gi, questions: buildQuestions(words, words.length), current: 0, score: 0, done: false };
+  const roundQueue = shuffle(words.map((_,i) => i));
+  return {
+    groupIdx: gi, words,
+    masteredIdx: new Set(),
+    roundQueue, roundPos: 0, roundNum: 1,
+    currentQ: buildQ(words[roundQueue[0]], gi),
+    totalAsked: 0, totalCorrect: 0, done: false
+  };
 }
 
 // Final quiz: 40 random questions from all groups
@@ -1312,7 +1327,7 @@ function renderGroup() {
     </div>
     <div class="tabs">
       <button class="tab${state.tab==='cards'?' active':''}" data-action="set-tab" data-tab="cards">🃏 Flashcards</button>
-      <button class="tab${state.tab==='quiz'?' active':''}" data-action="set-tab" data-tab="quiz">📝 Quiz (${g.words.length}Q)</button>
+      <button class="tab${state.tab==='quiz'?' active':''}" data-action="set-tab" data-tab="quiz">📝 Mastery Quiz</button>
     </div>
     ${state.tab==='cards' ? renderFlashcards(gi, g) : renderQuiz(gi, g)}
   </div>
@@ -1355,14 +1370,14 @@ function renderQuiz(gi, g) {
   if (!qs || qs.groupIdx !== gi) {
     return `<div class="quiz-wrap" style="text-align:center">
       <div style="font-size:48px;margin-bottom:12px">📝</div>
-      <p style="color:#4a5568;margin-bottom:6px;font-size:14px"><strong>Quiz all ${g.words.length} words</strong> in ${g.name}.</p>
-      <p style="color:#718096;margin-bottom:18px;font-size:13px">Pass threshold: 60% correct.</p>
-      <button class="btn btn-primary btn-block" data-action="start-quiz">Start Quiz (${g.words.length} questions)</button>
+      <p style="color:#4a5568;margin-bottom:6px;font-size:14px"><strong>Mastery Quiz</strong> — ${g.words.length} words in ${g.name}.</p>
+      <p style="color:#718096;margin-bottom:18px;font-size:13px">Wrong answers come back. Quiz ends only when every word is correct.</p>
+      <button class="btn btn-primary btn-block" data-action="start-quiz">Start Mastery Quiz</button>
     </div>`;
   }
   if (qs.done) return renderQuizResult(qs, g);
-  const q = qs.questions[qs.current];
-  const pct = Math.round(qs.current / qs.questions.length * 100);
+  const q = qs.currentQ;
+  const masteredPct = Math.round(qs.masteredIdx.size / qs.words.length * 100);
   const cbs = q.choices.map((c,i) => {
     let cls = 'qc', dis = '';
     if (q.answered !== null) {
@@ -1374,10 +1389,10 @@ function renderQuiz(gi, g) {
   }).join('');
   return `<div class="quiz-wrap">
     <div class="quiz-meta">
-      <span>Q${qs.current+1} / ${qs.questions.length}</span>
-      <span>✅ ${qs.score} &nbsp;❌ ${qs.current - qs.score}</span>
+      <span>Round ${qs.roundNum} · ${qs.roundPos+1}/${qs.roundQueue.length}</span>
+      <span>✅ ${qs.masteredIdx.size}/${qs.words.length} mastered</span>
     </div>
-    <div class="quiz-mini-bar"><div class="quiz-mini-fill" style="width:${pct}%"></div></div>
+    <div class="quiz-mini-bar"><div class="quiz-mini-fill" style="width:${masteredPct}%"></div></div>
     <div class="quiz-word">${q.word[0]}</div>
     <div class="quiz-romaji">${q.word[1]}</div>
     <div class="quiz-prompt">What does this mean?</div>
@@ -1386,25 +1401,16 @@ function renderQuiz(gi, g) {
 }
 
 function renderQuizResult(qs, g) {
-  const s = qs.score, t = qs.questions.length, p = Math.round(s/t*100);
-  const passed = p >= 60;
-  const msg = p===100?'🎉 Perfect! Flawless!':p>=80?'🌟 Excellent work!':p>=60?'👍 Passed! Keep it up!':'📚 Keep practicing — you\'ll get it!';
-  const missedRows = qs.questions
-    .filter(q => q.answered !== q.correctIdx)
-    .map(q => `<div class="result-word-row miss">
-      <span><strong>${q.word[0]}</strong> <span style="color:#718096;font-size:11px">${q.word[1]}</span></span>
-      <span style="color:#c53030">${q.word[2]}</span>
-    </div>`).join('');
+  const acc = qs.totalAsked ? Math.round(qs.totalCorrect / qs.totalAsked * 100) : 100;
+  const msg = qs.roundNum === 1 ? '🎉 Perfect — first try on every word!' : qs.roundNum === 2 ? '🌟 Excellent — mastered in 2 rounds!' : `👍 Mastered in ${qs.roundNum} rounds!`;
   return `<div class="quiz-wrap">
     <div class="quiz-result">
-      <div class="result-score">${s}/${t}</div>
-      <div class="result-pct">${p}% ${passed?'<span style="color:#48bb78">PASS ✅</span>':'<span style="color:#fc8181">RETRY</span>'}</div>
+      <div style="font-size:40px;margin-bottom:6px">🎉</div>
+      <div class="result-score">${qs.words.length}/${qs.words.length}</div>
+      <div class="result-pct">All words mastered · ${acc}% accuracy</div>
       <div class="result-msg">${msg}</div>
-      ${missedRows?`<div style="font-size:12px;font-weight:700;color:#718096;text-align:left;margin-bottom:4px">Missed (${t-s}):</div>
-        <div class="result-words">${missedRows}</div>`:''}
-      <div class="btn-row">
+      <div class="btn-row" style="margin-top:16px">
         <button class="btn btn-secondary" data-action="retry-quiz">↺ Retry</button>
-        <button class="btn btn-primary" data-action="start-quiz">New Quiz</button>
       </div>
     </div>
   </div>`;
@@ -1521,22 +1527,30 @@ function handleClick(e) {
   } else if (a === 'answer') {
     const qs = state.quizState;
     if (!qs || qs.done) return;
-    const q = qs.questions[qs.current];
+    const q = qs.currentQ;
     if (q.answered !== null) return;
     const idx = +e.currentTarget.dataset.idx;
     q.answered = idx;
-    if (idx === q.correctIdx) qs.score++;
+    qs.totalAsked++;
+    if (idx === q.correctIdx) { qs.totalCorrect++; qs.masteredIdx.add(qs.roundQueue[qs.roundPos]); }
     render();
     scheduleAdvance('next-q');
   } else if (a === 'next-q') {
     clearTimeout(_autoTimer);
     const qs = state.quizState;
-    qs.current++;
-    if (qs.current >= qs.questions.length) {
-      qs.done = true;
-      if (qs.score / qs.questions.length >= 0.6) {
+    qs.roundPos++;
+    if (qs.roundPos >= qs.roundQueue.length) {
+      const unmastered = qs.words.map((_,i) => i).filter(i => !qs.masteredIdx.has(i));
+      if (unmastered.length === 0) {
+        qs.done = true;
         state.groupProgress[state.currentGroup] = true; saveProgress();
+      } else {
+        qs.roundQueue = shuffle(unmastered);
+        qs.roundPos = 0; qs.roundNum++;
+        qs.currentQ = buildQ(qs.words[qs.roundQueue[0]], qs.groupIdx);
       }
+    } else {
+      qs.currentQ = buildQ(qs.words[qs.roundQueue[qs.roundPos]], qs.groupIdx);
     }
     render();
   } else if (a === 'prev-group') {
