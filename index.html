@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>JLPT N5 Trainer</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh;max-width:500px;margin:0 auto;padding-bottom:80px}
+.header{background:#fff;padding:12px 16px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.header-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.header-title{font-size:18px;font-weight:800;color:#c0392b;flex:1}
+.progress-bar-wrap{background:#e2e8f0;border-radius:999px;height:7px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,#e74c3c,#c0392b);border-radius:999px;transition:width .4s ease}
+.progress-text{font-size:11px;color:#718096;margin-top:3px;text-align:right}
+.screen{padding:14px}
+.animate-in{animation:slideIn .25s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:16px;font-weight:700;margin-bottom:10px;color:#2d3748}
+.groups-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.group-card{background:#fff;border-radius:14px;padding:14px 12px;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:0 2px 8px rgba(0,0,0,.08);border:2px solid transparent;position:relative;overflow:hidden;user-select:none}
+.group-card:active{transform:scale(.96)}
+.group-card.done{border-color:#68d391}
+.group-card-bar{position:absolute;top:0;left:0;right:0;height:4px;border-radius:14px 14px 0 0}
+.group-card-icon{font-size:26px;margin-bottom:6px;display:block}
+.group-card-name{font-size:12px;font-weight:700;color:#2d3748;margin-bottom:3px;line-height:1.3}
+.group-card-count{font-size:11px;color:#a0aec0}
+.group-card-badge{position:absolute;top:8px;right:8px;font-size:13px}
+.group-hd{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:14px}
+.group-hd-icon{font-size:40px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:18px;flex-shrink:0}
+.group-hd-name{font-size:18px;font-weight:800;color:#2d3748}
+.group-hd-sub{font-size:13px;color:#718096;margin-top:2px}
+.tip-card{background:#fffbeb;border:1px solid #f6e05e;border-radius:12px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.65;color:#744210}
+.tip-label{font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;color:#b7791f}
+.tabs{display:flex;background:#fff;border-radius:12px;padding:4px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.tab{flex:1;padding:9px;text-align:center;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;color:#718096;transition:all .18s;border:none;background:none;font-family:inherit}
+.tab.active{background:#e74c3c;color:#fff}
+.fc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fc{perspective:1000px;height:128px;cursor:pointer;user-select:none}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .45s ease}
+.fc.flipped .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center}
+.fc-front{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.fc-back{transform:rotateY(180deg);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.fc-kanji{font-size:24px;font-weight:800;margin-bottom:3px;line-height:1.2}
+.fc-romaji{font-size:11px;color:#718096}
+.fc-meaning{font-size:13px;font-weight:700;line-height:1.4}
+.fc-romaji-back{font-size:10px;opacity:.85;margin-top:3px}
+.fc-hint{font-size:10px;color:#a0aec0;margin-top:5px}
+.fc-controls{margin-top:12px;text-align:center;display:flex;gap:8px;justify-content:center}
+.quiz-wrap{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.quiz-meta{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;color:#718096}
+.quiz-mini-bar{background:#e2e8f0;border-radius:999px;height:5px;overflow:hidden;margin-bottom:14px}
+.quiz-mini-fill{height:100%;background:linear-gradient(90deg,#e74c3c,#c0392b);border-radius:999px;transition:width .3s}
+.quiz-word{font-size:38px;font-weight:800;text-align:center;margin-bottom:4px;line-height:1.2}
+.quiz-romaji{font-size:13px;text-align:center;color:#718096;margin-bottom:18px}
+.quiz-prompt{font-size:13px;font-weight:600;text-align:center;color:#4a5568;margin-bottom:12px}
+.quiz-choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.qc{padding:13px 10px;border:2px solid #e2e8f0;border-radius:11px;cursor:pointer;font-size:13px;text-align:center;transition:all .15s;background:#fff;font-family:inherit;color:#2d3748;line-height:1.3}
+.qc:hover:not([disabled]){border-color:#e74c3c;background:#fff5f5}
+.qc.correct{border-color:#48bb78!important;background:#f0fff4!important;color:#276749!important}
+.qc.wrong{border-color:#fc8181!important;background:#fff5f5!important;color:#c53030!important}
+.qc[disabled]{cursor:default}
+.quiz-result{text-align:center;padding:16px 0}
+.result-score{font-size:60px;font-weight:900;color:#e74c3c}
+.result-pct{font-size:16px;color:#718096;margin-bottom:6px}
+.result-msg{font-size:15px;font-weight:600;color:#2d3748;margin-bottom:20px}
+.final-banner{background:linear-gradient(135deg,#e74c3c,#c0392b);border-radius:18px;padding:22px;text-align:center;color:#fff;margin-bottom:20px}
+.final-banner h2{font-size:22px;font-weight:900;margin-bottom:6px}
+.final-banner p{font-size:13px;opacity:.9}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border-radius:11px;border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit;transition:all .15s;user-select:none}
+.btn-primary{background:#e74c3c;color:#fff}
+.btn-primary:active{background:#c0392b}
+.btn-secondary{background:#e2e8f0;color:#2d3748}
+.btn-secondary:active{background:#cbd5e0}
+.btn-block{width:100%}
+.btn-row{display:flex;gap:9px;margin-top:14px}
+.btn-row .btn{flex:1}
+.btn-ghost{background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.6)}
+.back-btn{display:flex;align-items:center;gap:5px;color:#e74c3c;font-size:14px;font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+.nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:#fff;border-top:1px solid #e2e8f0;display:flex;padding:10px 14px;gap:10px;z-index:100}
+.nav-bar .btn{flex:1}
+.next-q-wrap{margin-top:14px;text-align:center}
+.result-words{margin-top:16px;max-height:200px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px}
+.result-word-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:12px;border-bottom:1px solid #f7fafc}
+.result-word-row:last-child{border-bottom:none}
+.result-word-row.miss{background:#fff5f5}
+.result-word-row.hit{background:#f0fff4}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ─────────────────────────────────────────────
+// VOCABULARY  — 53 groups, ~700 words
+// word format: [kanji/kana, romaji, english]
+// ─────────────────────────────────────────────
+const GROUPS = [
+  /* 01 */ {
+    name:"Pronouns & People",icon:"👤",color:"#E74C3C",
+    tip:"Japanese pronouns shift with formality: 私 (watashi) neutral, 僕 (boku) casual male. More often, pronouns are dropped entirely — context does the work. Japanese is a very context-reliant language!",
+    words:[
+      ["私","watashi","I / me"],
+      ["あなた","anata","you"],
+      ["彼","kare","he / him / boyfriend"],
+      ["彼女","kanojo","she / her / girlfriend"],
+      ["私たち","watashitachi","we / us"],
+      ["あなたたち","anatatachi","you (plural)"],
+      ["彼ら","karera","they"],
+      ["人","hito","person / people"],
+      ["方","kata","person (polite form)"],
+      ["誰","dare","who"],
+      ["子供","kodomo","child"],
+      ["大人","otona","adult"],
+      ["男","otoko","man / male"],
+      ["女","onna","woman / female"],
+    ]
+  },
+  /* 02 */ {
+    name:"Family",icon:"👨‍👩‍👧‍👦",color:"#E67E22",
+    tip:"Japanese has humble words for your own family and honorific words for others'. 父 (chichi) = my father; お父さん (otōsan) = someone else's father or a polite term for your own. Always humble yourself, elevate others!",
+    words:[
+      ["家族","kazoku","family"],
+      ["父","chichi","father (my own)"],
+      ["母","haha","mother (my own)"],
+      ["お父さん","otōsan","father (someone else's / polite)"],
+      ["お母さん","okāsan","mother (someone else's / polite)"],
+      ["兄","ani","older brother (my own)"],
+      ["姉","ane","older sister (my own)"],
+      ["弟","otōto","younger brother"],
+      ["妹","imōto","younger sister"],
+      ["祖父","sofu","grandfather (my own)"],
+      ["祖母","sobo","grandmother (my own)"],
+      ["夫","otto","husband"],
+      ["妻","tsuma","wife"],
+      ["赤ちゃん","akachan","baby"],
+    ]
+  },
+  /* 03 */ {
+    name:"Body Parts",icon:"🫀",color:"#9B59B6",
+    tip:"Body words appear in many idioms: 手 (te = hand) in 上手 (jōzu = skilled, lit. 'upper hand'); 目 (me = eye) in 目上 (meue = superior, lit. 'above the eye'). Spot body words inside larger vocabulary!",
+    words:[
+      ["体","karada","body"],
+      ["頭","atama","head"],
+      ["顔","kao","face"],
+      ["目","me","eye(s)"],
+      ["耳","mimi","ear(s)"],
+      ["鼻","hana","nose"],
+      ["口","kuchi","mouth"],
+      ["歯","ha","teeth"],
+      ["首","kubi","neck"],
+      ["肩","kata","shoulder"],
+      ["腕","ude","arm"],
+      ["手","te","hand(s)"],
+      ["指","yubi","finger / toe"],
+      ["お腹","onaka","stomach / belly"],
+      ["足","ashi","foot / leg"],
+      ["背中","senaka","back (of body)"],
+    ]
+  },
+  /* 04 */ {
+    name:"Home & Daily Life",icon:"🏠",color:"#1ABC9C",
+    tip:"家 (ie) = the house building; うち (uchi) = 'home/our place'. uchi also means 'inside our group', reflecting Japan's strong in-group (内 uchi) vs out-group (外 soto) social distinction.",
+    words:[
+      ["家","ie / uchi","house / home"],
+      ["部屋","heya","room"],
+      ["ドア","doa","door"],
+      ["窓","mado","window"],
+      ["机","tsukue","desk"],
+      ["椅子","isu","chair"],
+      ["テーブル","tēburu","table"],
+      ["ベッド","beddo","bed"],
+      ["トイレ","toire","toilet / restroom"],
+      ["お風呂","ofuro","bath / bathroom"],
+      ["台所","daidokoro","kitchen"],
+      ["電気","denki","electricity / (electric) light"],
+      ["玄関","genkan","entryway / entrance hall"],
+      ["廊下","rōka","hallway / corridor"],
+      ["庭","niwa","garden / yard"],
+    ]
+  },
+  /* 05 */ {
+    name:"Bathroom & Household Items",icon:"🧹",color:"#00BCD4",
+    tip:"Japanese borrowed many household item names: タオル (taoru = towel), シャンプー (shanpū = shampoo), エアコン (eakon = air conditioner). The katakana clue tells you it's a loanword — often from English!",
+    words:[
+      ["タオル","taoru","towel"],
+      ["石鹸","sekken","soap"],
+      ["歯ブラシ","haburashi","toothbrush"],
+      ["シャンプー","shanpū","shampoo"],
+      ["鏡","kagami","mirror"],
+      ["鍵","kagi","key / lock"],
+      ["冷蔵庫","reizōko","refrigerator"],
+      ["洗濯機","sentakuki","washing machine"],
+      ["掃除機","sōjiki","vacuum cleaner"],
+      ["電子レンジ","denshi renji","microwave oven"],
+      ["エアコン","eakon","air conditioner"],
+      ["ごみ","gomi","garbage / trash"],
+    ]
+  },
+  /* 06 */ {
+    name:"Food — Staples & Condiments",icon:"🍱",color:"#27AE60",
+    tip:"ご飯 (gohan) means cooked rice AND any meal. 食事 (shokuji) is the formal word for meal. Many condiments in Japanese cuisine: 醤油 (shōyu), 味噌 (miso), 酢 (su = vinegar). These flavors define Japanese cooking!",
+    words:[
+      ["ご飯","gohan","rice / meal"],
+      ["パン","pan","bread"],
+      ["肉","niku","meat"],
+      ["魚","sakana","fish"],
+      ["野菜","yasai","vegetables"],
+      ["果物","kudamono","fruit"],
+      ["たまご","tamago","egg"],
+      ["砂糖","satō","sugar"],
+      ["塩","shio","salt"],
+      ["醤油","shōyu","soy sauce"],
+      ["味噌","miso","miso (fermented soybean paste)"],
+      ["油","abura","oil"],
+      ["バター","batā","butter"],
+      ["酢","su","vinegar"],
+    ]
+  },
+  /* 07 */ {
+    name:"Drinks",icon:"🍵",color:"#2ECC71",
+    tip:"お茶 (ocha) = tea, specifically green tea by default. 紅茶 (kōcha) = black tea (lit. 'red tea'). 日本酒 (nihonshu) = sake. Many drink names are borrowed: コーヒー (kōhī) from Dutch 'koffie', ビール (bīru) from German 'Bier'!",
+    words:[
+      ["水","mizu","water"],
+      ["お茶","ocha","(green) tea"],
+      ["紅茶","kōcha","black tea"],
+      ["コーヒー","kōhī","coffee"],
+      ["牛乳","gyūnyū","milk"],
+      ["ジュース","jūsu","juice"],
+      ["コーラ","kōra","cola"],
+      ["ビール","bīru","beer"],
+      ["ワイン","wain","wine"],
+      ["日本酒","nihonshu","sake / Japanese rice wine"],
+    ]
+  },
+  /* 08 */ {
+    name:"Japanese Foods",icon:"🍜",color:"#F39C12",
+    tip:"Many iconic Japanese dishes are loan-words in reverse! 天ぷら (tenpura) came from Portuguese 'temporas'. カレー (karē) came from English 'curry' which came from Tamil 'kari'. Food words travel the world!",
+    words:[
+      ["ラーメン","rāmen","ramen noodles"],
+      ["うどん","udon","udon noodles (thick wheat)"],
+      ["そば","soba","soba noodles (buckwheat)"],
+      ["すし","sushi","sushi"],
+      ["てんぷら","tenpura","tempura (battered & fried)"],
+      ["とんかつ","tonkatsu","pork cutlet"],
+      ["刺身","sashimi","sashimi (raw fish)"],
+      ["豆腐","tōfu","tofu"],
+      ["おにぎり","onigiri","rice ball"],
+      ["カレー","karē","curry"],
+      ["弁当","bentō","lunchbox"],
+      ["定食","teishoku","set meal"],
+      ["焼き魚","yakizakana","grilled fish"],
+    ]
+  },
+  /* 09 */ {
+    name:"Fruits & Vegetables",icon:"🍎",color:"#E74C3C",
+    tip:"Many fruit/vegetable names are katakana: トマト (tomato), キャベツ (kyabetsu = cabbage), レタス (retasu = lettuce). Japanese original names: りんご (ringo = apple), みかん (mikan = mandarin). A mix of native and borrowed!",
+    words:[
+      ["りんご","ringo","apple"],
+      ["バナナ","banana","banana"],
+      ["みかん","mikan","mandarin orange / tangerine"],
+      ["いちご","ichigo","strawberry"],
+      ["ぶどう","budō","grapes"],
+      ["すいか","suika","watermelon"],
+      ["もも","momo","peach"],
+      ["にんじん","ninjin","carrot"],
+      ["じゃがいも","jagaimo","potato"],
+      ["たまねぎ","tamanegi","onion"],
+      ["きのこ","kinoko","mushroom"],
+      ["キャベツ","kyabetsu","cabbage"],
+      ["トマト","tomato","tomato"],
+      ["きゅうり","kyūri","cucumber"],
+      ["レタス","retasu","lettuce"],
+    ]
+  },
+  /* 10 */ {
+    name:"Clothing & Accessories",icon:"👗",color:"#3498DB",
+    tip:"Modern clothing words are mostly katakana: シャツ (shatsu = shirt), コート (kōto = coat). Traditional items keep Japanese: 着物 (kimono), 帯 (obi = sash). Katakana signals a borrowed/modern concept!",
+    words:[
+      ["服","fuku","clothes / clothing"],
+      ["シャツ","shatsu","shirt"],
+      ["ズボン","zubon","trousers / pants"],
+      ["スカート","sukāto","skirt"],
+      ["くつ","kutsu","shoes"],
+      ["くつした","kutsushita","socks"],
+      ["ぼうし","bōshi","hat / cap"],
+      ["コート","kōto","coat"],
+      ["セーター","sētā","sweater"],
+      ["めがね","megane","glasses / spectacles"],
+      ["かさ","kasa","umbrella"],
+      ["手袋","tebukuro","gloves"],
+      ["マフラー","mafurā","scarf / muffler"],
+    ]
+  },
+  /* 11 */ {
+    name:"Colors",icon:"🎨",color:"#8E44AD",
+    tip:"Colors come in two forms: noun (赤 aka = red) and い-adjective (赤い akai = red-colored). Note: 青 (ao) covers both blue and green — a green traffic light is called 青信号 (aoshingō)!",
+    words:[
+      ["色","iro","color"],
+      ["赤","aka","red"],
+      ["青","ao","blue / (sometimes) green"],
+      ["黄色","kiiro","yellow"],
+      ["白","shiro","white"],
+      ["黒","kuro","black"],
+      ["緑","midori","green"],
+      ["茶色","chairo","brown"],
+      ["紫","murasaki","purple"],
+      ["オレンジ","orenji","orange"],
+      ["ピンク","pinku","pink"],
+      ["灰色","haiiro","gray"],
+    ]
+  },
+  /* 12 */ {
+    name:"Numbers 1 – 10,000",icon:"🔢",color:"#E74C3C",
+    tip:"Four and nine are unlucky: 四 (shi) sounds like 死 (death), 九 (ku) sounds like 苦 (suffering). So they're often read yon and kyū instead. Hospital rooms often skip 4 and 9 for this reason!",
+    words:[
+      ["一","ichi","1 (one)"],
+      ["二","ni","2 (two)"],
+      ["三","san","3 (three)"],
+      ["四","yon / shi","4 (four)"],
+      ["五","go","5 (five)"],
+      ["六","roku","6 (six)"],
+      ["七","nana / shichi","7 (seven)"],
+      ["八","hachi","8 (eight)"],
+      ["九","kyū / ku","9 (nine)"],
+      ["十","jū","10 (ten)"],
+      ["百","hyaku","100 (hundred)"],
+      ["千","sen","1,000 (thousand)"],
+      ["万","man","10,000 (ten-thousand)"],
+    ]
+  },
+  /* 13 */ {
+    name:"Counters",icon:"🧮",color:"#607D8B",
+    tip:"Japanese counting uses 'counters' that attach to numbers based on what's counted. 〜本 (hon) for long objects, 〜枚 (mai) for flat objects, 〜匹 (hiki) for small animals. Memorize one counter at a time!",
+    words:[
+      ["〜つ","~tsu","general counter (hitotsu, futatsu…)"],
+      ["〜人","~nin","counter for people"],
+      ["〜本","~hon/pon/bon","counter for long thin things"],
+      ["〜枚","~mai","counter for flat things (paper, shirts)"],
+      ["〜冊","~satsu","counter for books"],
+      ["〜匹","~hiki","counter for small animals"],
+      ["〜頭","~tō","counter for large animals"],
+      ["〜台","~dai","counter for machines / vehicles"],
+      ["〜杯","~hai","counter for cups / glasses / bowls"],
+      ["〜個","~ko","counter for small objects"],
+      ["〜階","~kai","counter for building floors"],
+      ["〜回","~kai","counter for times / occurrences"],
+      ["〜番","~ban","number / rank (ordinal)"],
+    ]
+  },
+  /* 14 */ {
+    name:"Time of Day",icon:"🕐",color:"#16A085",
+    tip:"午 (go) is key: 午前 (gozen) = before noon = AM; 午後 (gogo) = after noon = PM. Time: 〜時 (ji) = o'clock, 〜分 (fun/pun) = minutes, 半 (han) = half past. 三時半 = 3:30!",
+    words:[
+      ["今","ima","now"],
+      ["朝","asa","morning"],
+      ["昼","hiru","noon / daytime"],
+      ["夕方","yūgata","late afternoon / early evening"],
+      ["夜","yoru","night / evening"],
+      ["夜中","yonaka","midnight / middle of the night"],
+      ["午前","gozen","AM / before noon"],
+      ["午後","gogo","PM / after noon"],
+      ["〜時","~ji","o'clock (3時 = 3 o'clock)"],
+      ["〜分","~fun/pun","minutes (10分 = 10 minutes)"],
+      ["半","han","half past (3時半 = 3:30)"],
+      ["時間","jikan","time / hour / duration"],
+    ]
+  },
+  /* 15 */ {
+    name:"Days of the Week",icon:"📅",color:"#2980B9",
+    tip:"Weekday names encode the five elements + sun + moon: 月 (moon) Mon, 火 (fire) Tue, 水 (water) Wed, 木 (wood) Thu, 金 (metal/gold) Fri, 土 (earth) Sat, 日 (sun) Sun. An elemental week!",
+    words:[
+      ["月曜日","getsuyōbi","Monday (moon day)"],
+      ["火曜日","kayōbi","Tuesday (fire day)"],
+      ["水曜日","suiyōbi","Wednesday (water day)"],
+      ["木曜日","mokuyōbi","Thursday (wood day)"],
+      ["金曜日","kin'yōbi","Friday (metal/gold day)"],
+      ["土曜日","doyōbi","Saturday (earth day)"],
+      ["日曜日","nichiyōbi","Sunday (sun day)"],
+      ["週末","shūmatsu","weekend"],
+      ["平日","heijitsu","weekday (Mon–Fri)"],
+      ["休日","kyūjitsu","day off / holiday"],
+      ["祝日","shukujitsu","national holiday"],
+      ["毎日","mainichi","every day"],
+    ]
+  },
+  /* 16 */ {
+    name:"Days & Date Expressions",icon:"🗓",color:"#E67E22",
+    tip:"Add 毎 (mai = every): 毎日 (every day), 毎週 (every week), 毎月 (every month). Add 来 (rai = next), 先 (sen = last/previous), 今 (kon/ima = this/now). These prefixes unlock dozens of time expressions!",
+    words:[
+      ["今日","kyō","today"],
+      ["明日","ashita","tomorrow"],
+      ["昨日","kinō","yesterday"],
+      ["明後日","asatte","day after tomorrow"],
+      ["一昨日","ototoi","day before yesterday"],
+      ["今週","konshū","this week"],
+      ["来週","raishū","next week"],
+      ["先週","senshū","last week"],
+      ["今月","kongetsu","this month"],
+      ["来月","raigetsu","next month"],
+      ["先月","sengetsu","last month"],
+      ["今年","kotoshi","this year"],
+      ["来年","rainen","next year"],
+      ["去年","kyonen","last year"],
+    ]
+  },
+  /* 17 */ {
+    name:"Months & Seasons",icon:"🌸",color:"#E91E63",
+    tip:"Japanese months = number + 月 (gatsu): 一月 = January, 二月 = February. Seasons: 春 (haru) spring, 夏 (natsu) summer, 秋 (aki) autumn, 冬 (fuyu) winter. The four seasons are central to Japanese culture and poetry!",
+    words:[
+      ["春","haru","spring"],
+      ["夏","natsu","summer"],
+      ["秋","aki","autumn / fall"],
+      ["冬","fuyu","winter"],
+      ["一月","ichigatsu","January"],
+      ["二月","nigatsu","February"],
+      ["三月","sangatsu","March"],
+      ["四月","shigatsu","April"],
+      ["五月","gogatsu","May"],
+      ["六月","rokugatsu","June"],
+      ["七月","shichigatsu","July"],
+      ["八月","hachigatsu","August"],
+      ["九月","kugatsu","September"],
+      ["十月","jūgatsu","October"],
+      ["十一月","jūichigatsu","November"],
+      ["十二月","jūnigatsu","December"],
+    ]
+  },
+  /* 18 */ {
+    name:"Weather",icon:"🌤",color:"#F39C12",
+    tip:"暑い (atsui) = hot air; 熱い (atsui) = hot to touch — same sound, different kanji! 寒い (samui) = cold air; 冷たい (tsumetai) = cold to touch. Also: 天気予報 (tenki yohō) = weather forecast!",
+    words:[
+      ["天気","tenki","weather"],
+      ["晴れ","hare","sunny / clear"],
+      ["曇り","kumori","cloudy"],
+      ["雨","ame","rain"],
+      ["雪","yuki","snow"],
+      ["風","kaze","wind"],
+      ["台風","taifū","typhoon"],
+      ["暑い","atsui","hot (weather / air)"],
+      ["寒い","samui","cold (weather / air)"],
+      ["涼しい","suzushii","cool / refreshing"],
+      ["暖かい","atatakai","warm"],
+      ["霧","kiri","fog / mist"],
+    ]
+  },
+  /* 19 */ {
+    name:"Nature",icon:"🌿",color:"#2ECC71",
+    tip:"Nature words appear in Japanese place names: 山 (yama/san) = mountain → 富士山 (Fujisan!), 川 (kawa/gawa) = river → 神奈川. 花火 (hanabi = fireworks) is literally 'flower fire' — poetic and accurate!",
+    words:[
+      ["山","yama","mountain"],
+      ["川","kawa","river"],
+      ["海","umi","sea / ocean"],
+      ["湖","mizūmi","lake"],
+      ["島","shima","island"],
+      ["空","sora","sky"],
+      ["太陽","taiyō","sun"],
+      ["月","tsuki","moon"],
+      ["星","hoshi","star"],
+      ["木","ki","tree"],
+      ["花","hana","flower"],
+      ["草","kusa","grass / weed"],
+      ["池","ike","pond"],
+      ["森","mori","forest"],
+    ]
+  },
+  /* 20 */ {
+    name:"Animals",icon:"🐾",color:"#795548",
+    tip:"Japanese animal sounds differ from English! Dogs: ワンワン (wan wan), cats: ニャー (nyā), frogs: ケロケロ (kero kero), pigs: ブーブー (bū bū). The word for animal sound is 鳴き声 (nakigoe). Fun to learn!",
+    words:[
+      ["犬","inu","dog"],
+      ["猫","neko","cat"],
+      ["鳥","tori","bird"],
+      ["魚","sakana","fish"],
+      ["馬","uma","horse"],
+      ["牛","ushi","cow"],
+      ["豚","buta","pig"],
+      ["ウサギ","usagi","rabbit"],
+      ["ねずみ","nezumi","mouse / rat"],
+      ["象","zō","elephant"],
+      ["ライオン","raion","lion"],
+      ["虎","tora","tiger"],
+      ["クマ","kuma","bear"],
+      ["さる","saru","monkey"],
+      ["へび","hebi","snake"],
+    ]
+  },
+  /* 21 */ {
+    name:"Position & Direction Words",icon:"🗺",color:"#607D8B",
+    tip:"Direction words double as positional words: 上 (ue) = up/on top, 下 (shita) = down/under. They build compound words: 地下 (chika) = underground, 地下鉄 (chikatetsu) = subway = literally 'underground iron'!",
+    words:[
+      ["右","migi","right"],
+      ["左","hidari","left"],
+      ["上","ue","above / up / on top"],
+      ["下","shita","below / down / under"],
+      ["中","naka","inside / middle / among"],
+      ["外","soto","outside"],
+      ["前","mae","front / before / in front of"],
+      ["後ろ","ushiro","behind / back"],
+      ["隣","tonari","next to / neighboring"],
+      ["近く","chikaku","nearby / close"],
+      ["遠く","tōku","far away"],
+      ["間","aida","between / among / during"],
+      ["角","kado","corner"],
+    ]
+  },
+  /* 22 */ {
+    name:"Places in Town 1",icon:"🏙",color:"#34495E",
+    tip:"Spot suffix patterns: 〜館 (kan = hall) in 図書館 (toshokan = library), 映画館 (eigakan = cinema); 〜局 (kyoku = bureau) in 郵便局 (post office). These suffixes help you guess unknown buildings!",
+    words:[
+      ["学校","gakkō","school"],
+      ["病院","byōin","hospital"],
+      ["銀行","ginkō","bank"],
+      ["郵便局","yūbinkyoku","post office"],
+      ["駅","eki","(train) station"],
+      ["店","mise","shop / store"],
+      ["レストラン","resutoran","restaurant"],
+      ["公園","kōen","park"],
+      ["図書館","toshokan","library"],
+      ["ホテル","hoteru","hotel"],
+      ["スーパー","sūpā","supermarket"],
+      ["デパート","depāto","department store"],
+    ]
+  },
+  /* 23 */ {
+    name:"Places in Town 2",icon:"🏛",color:"#2C3E50",
+    tip:"More useful places: コンビニ (konbini = convenience store) is a portmanteau of 'convenience' + store. Open 24/7, they're essential in Japan! 神社 (jinja) = Shinto shrine; お寺 (otera) = Buddhist temple.",
+    words:[
+      ["大学","daigaku","university"],
+      ["高校","kōkō","senior high school"],
+      ["小学校","shōgakkō","elementary school"],
+      ["コンビニ","konbini","convenience store"],
+      ["映画館","eigakan","movie theater / cinema"],
+      ["美術館","bijutsukan","art museum"],
+      ["動物園","dōbutsuen","zoo"],
+      ["神社","jinja","Shinto shrine"],
+      ["お寺","otera","Buddhist temple"],
+      ["空港","kūkō","airport"],
+      ["市役所","shiyakusho","city hall"],
+      ["薬局","yakkyoku","pharmacy / drugstore"],
+    ]
+  },
+  /* 24 */ {
+    name:"Transportation",icon:"🚂",color:"#C0392B",
+    tip:"電 (den = electricity) powers transport: 電車 (densha = train). 地下 (chika = underground) + 鉄 (tetsu = iron) = 地下鉄 (chikatetsu = subway). 自 (ji = self) + 動 (dō = move) + 車 (sha = vehicle) = 自動車 (car)!",
+    words:[
+      ["電車","densha","train"],
+      ["バス","basu","bus"],
+      ["タクシー","takushī","taxi"],
+      ["飛行機","hikōki","airplane"],
+      ["船","fune","boat / ship"],
+      ["自動車","jidōsha","car / automobile"],
+      ["自転車","jitensha","bicycle"],
+      ["地下鉄","chikatetsu","subway / metro"],
+      ["新幹線","shinkansen","bullet train"],
+      ["道","michi","road / path / way"],
+      ["切符","kippu","ticket"],
+      ["バス停","basutei","bus stop"],
+    ]
+  },
+  /* 25 */ {
+    name:"School & Classroom",icon:"📚",color:"#3498DB",
+    tip:"学 (gaku = study/learning) is everywhere: 学校 (gakkō = school), 学生 (gakusei = student), 大学 (daigaku = university). 先生 (sensei = teacher) literally means 'one who came before' — honoring experience!",
+    words:[
+      ["先生","sensei","teacher"],
+      ["学生","gakusei","student (at school)"],
+      ["生徒","seito","pupil (in school)"],
+      ["教室","kyōshitsu","classroom"],
+      ["授業","jugyō","class / lesson"],
+      ["宿題","shukudai","homework"],
+      ["試験","shiken","exam / test"],
+      ["本","hon","book"],
+      ["ノート","nōto","notebook"],
+      ["ペン","pen","pen"],
+      ["鉛筆","enpitsu","pencil"],
+      ["消しゴム","keshigomu","eraser"],
+      ["辞書","jisho","dictionary"],
+      ["黒板","kokuban","blackboard"],
+      ["かばん","kaban","bag / briefcase / satchel"],
+    ]
+  },
+  /* 26 */ {
+    name:"Study & Language",icon:"🗣",color:"#8E44AD",
+    tip:"勉強 (benkyō = study) literally means 'forcing effort' — 勉 (force/strive) + 強 (strong). 練習 (renshū = practice): 練 (knead/polish) + 習 (learn). Japanese kanji reveal the philosophy behind the concept!",
+    words:[
+      ["勉強","benkyō","studying"],
+      ["練習","renshū","practice"],
+      ["問題","mondai","problem / question"],
+      ["答え","kotae","answer"],
+      ["説明","setsumei","explanation"],
+      ["言葉","kotoba","word / language / expression"],
+      ["意味","imi","meaning"],
+      ["文","bun","sentence"],
+      ["日本語","nihongo","Japanese language"],
+      ["英語","eigo","English language"],
+      ["読み方","yomikata","how to read / reading"],
+      ["書き方","kakikata","how to write / writing"],
+    ]
+  },
+  /* 27 */ {
+    name:"Work & Occupations",icon:"💼",color:"#E67E22",
+    tip:"Occupation suffixes: 〜者 (sha = person who does) in 医者 (isha = doctor), 学者 (gakusha = scholar); 〜員 (in = member/staff) in 店員 (ten'in = shop staff), 会社員 (kaishain = office worker). Spot the pattern!",
+    words:[
+      ["仕事","shigoto","work / job"],
+      ["会社","kaisha","company"],
+      ["医者","isha","doctor"],
+      ["看護師","kangoshi","nurse"],
+      ["警察官","keisatsukan","police officer"],
+      ["料理人","ryōrinin","cook / chef"],
+      ["店員","ten'in","shop clerk / staff"],
+      ["会社員","kaishain","company employee"],
+      ["運転手","untenshu","driver"],
+      ["歌手","kashu","singer"],
+      ["農家","nōka","farmer"],
+      ["弁護士","bengoshi","lawyer"],
+    ]
+  },
+  /* 28 */ {
+    name:"Shopping & Money",icon:"🛍",color:"#F39C12",
+    tip:"Japanese currency is 円 (en / yen). 安い (yasui) = cheap AND easy; 高い (takai) = expensive AND tall. Context resolves the meaning. In a shop, 高い means expensive; on a mountain, it means tall!",
+    words:[
+      ["お金","okane","money"],
+      ["円","en","yen (¥)"],
+      ["買い物","kaimono","shopping"],
+      ["値段","nedan","price"],
+      ["安い","yasui","cheap / inexpensive"],
+      ["高い","takai","expensive / tall / high"],
+      ["財布","saifu","wallet / purse"],
+      ["レジ","reji","cash register / checkout"],
+      ["おつり","otsuri","change (money returned)"],
+      ["セール","sēru","sale"],
+      ["割引","waribiki","discount"],
+      ["領収書","ryōshūsho","receipt"],
+    ]
+  },
+  /* 29 */ {
+    name:"Health & Illness",icon:"🏥",color:"#E91E63",
+    tip:"気 (ki = spirit/energy) carries health words: 元気 (genki = healthy, lit. 'original energy'), 病気 (byōki = illness, lit. 'sick energy'), 気分 (kibun = feeling/mood). Japanese wellness is philosophically linked to life force!",
+    words:[
+      ["体","karada","body"],
+      ["病気","byōki","illness / sickness"],
+      ["風邪","kaze","cold (illness)"],
+      ["熱","netsu","fever"],
+      ["頭痛","zutsū","headache"],
+      ["腹痛","fukutsū","stomachache"],
+      ["痛い","itai","painful / it hurts"],
+      ["薬","kusuri","medicine"],
+      ["病院","byōin","hospital"],
+      ["元気","genki","healthy / energetic / fine"],
+      ["疲れる","tsukareru","to get tired"],
+      ["休む","yasumu","to rest / take time off"],
+      ["大丈夫","daijōbu","okay / all right / no problem"],
+      ["気分","kibun","feeling / mood (physical)"],
+    ]
+  },
+  /* 30 */ {
+    name:"Hobbies & Entertainment",icon:"🎭",color:"#1ABC9C",
+    tip:"Hobby self-introductions: 趣味は〜です (shumi wa … desu = My hobby is…) is essential small-talk. スポーツ (sports), 音楽 (music), 料理 (cooking) are top answers. What's your 趣味?",
+    words:[
+      ["音楽","ongaku","music"],
+      ["映画","eiga","movie / film"],
+      ["スポーツ","supōtsu","sports"],
+      ["旅行","ryokō","travel"],
+      ["写真","shashin","photo / photograph"],
+      ["料理","ryōri","cooking / cuisine"],
+      ["ゲーム","gēmu","game"],
+      ["テレビ","terebi","TV / television"],
+      ["趣味","shumi","hobby"],
+      ["散歩","sanpo","walk / stroll"],
+      ["読書","dokusho","reading (as a hobby)"],
+      ["歌","uta","song / singing"],
+    ]
+  },
+  /* 31 */ {
+    name:"Communication & Technology",icon:"📱",color:"#2980B9",
+    tip:"電 (den = electric/electricity) is prolific: 電話 (denwa = telephone, lit. 'electric talk'), 電車 (densha = train), 電気 (denki = electricity). Once you know 電, many words click into place!",
+    words:[
+      ["電話","denwa","telephone"],
+      ["手紙","tegami","letter (written mail)"],
+      ["新聞","shinbun","newspaper"],
+      ["雑誌","zasshi","magazine"],
+      ["カメラ","kamera","camera"],
+      ["ラジオ","rajio","radio"],
+      ["インターネット","intānetto","internet"],
+      ["メール","mēru","email / message"],
+      ["ニュース","nyūsu","news"],
+      ["番号","bangō","number (phone/ID)"],
+      ["住所","jūsho","address"],
+      ["名前","namae","name"],
+    ]
+  },
+  /* 32 */ {
+    name:"Daily Objects",icon:"🗝",color:"#546E7A",
+    tip:"Time-related objects: 時計 (tokei = clock/watch) — 時 (toki = time) + 計 (kei = measure). 入口 (iriguchi = entrance) and 出口 (deguchi = exit) — 入 (iru = enter) and 出 (deru = exit) make the meaning obvious!",
+    words:[
+      ["時計","tokei","clock / watch"],
+      ["地図","chizu","map"],
+      ["切手","kitte","postage stamp"],
+      ["荷物","nimotsu","luggage / baggage / load"],
+      ["電池","denchi","battery"],
+      ["はさみ","hasami","scissors"],
+      ["テープ","tēpu","tape / adhesive tape"],
+      ["ポスト","posuto","mailbox / post"],
+      ["窓口","madoguchi","service counter / ticket window"],
+      ["入口","iriguchi","entrance"],
+      ["出口","deguchi","exit"],
+      ["階段","kaidan","stairs / staircase"],
+    ]
+  },
+  /* 33 */ {
+    name:"Special Occasions & Events",icon:"🎉",color:"#9C27B0",
+    tip:"誕生日 (tanjōbi = birthday): 誕 (birth) + 生 (life) + 日 (day). 結婚 (kekkon = marriage/wedding). 正月 (shōgatsu = New Year) is Japan's most important holiday — families gather and visit shrines!",
+    words:[
+      ["誕生日","tanjōbi","birthday"],
+      ["結婚","kekkon","marriage / wedding"],
+      ["祭り","matsuri","festival"],
+      ["正月","shōgatsu","New Year (holiday period)"],
+      ["クリスマス","kurisumasu","Christmas"],
+      ["パーティー","pātī","party"],
+      ["休み","yasumi","holiday / day off / rest"],
+      ["約束","yakusoku","promise / appointment"],
+      ["計画","keikaku","plan"],
+      ["プレゼント","purezento","present / gift"],
+      ["記念日","kinenbi","anniversary"],
+      ["招待","shōtai","invitation"],
+    ]
+  },
+  /* 34 */ {
+    name:"Country & Language",icon:"🌍",color:"#00897B",
+    tip:"〜語 (go = language): 日本語 (nihongo = Japanese), 英語 (eigo = English), 中国語 (chūgokugo = Chinese). 〜人 (jin = person from): 日本人 (nihonjin = Japanese person), アメリカ人 (Amerikajin = American)!",
+    words:[
+      ["国","kuni","country"],
+      ["日本","nihon / nippon","Japan"],
+      ["アメリカ","Amerika","United States / America"],
+      ["中国","Chūgoku","China"],
+      ["韓国","Kankoku","South Korea"],
+      ["フランス","Furansu","France"],
+      ["イギリス","Igirisu","United Kingdom"],
+      ["外国","gaikoku","foreign country"],
+      ["外国人","gaikokujin","foreigner"],
+      ["世界","sekai","world"],
+      ["〜語","~go","language suffix (英語 = English)"],
+      ["〜人","~jin","nationality suffix (日本人 = Japanese)"],
+    ]
+  },
+  /* 35 */ {
+    name:"Abstract & Common Nouns",icon:"💭",color:"#FF7043",
+    tip:"気持ち (kimochi = feeling): 気 (ki = spirit) + 持つ (motsu = hold). 心 (kokoro = heart/mind) vs 気 (ki = feeling/spirit) — both relate to emotions but 心 is deeper, 気 is more surface feeling.",
+    words:[
+      ["気持ち","kimochi","feeling / emotion"],
+      ["声","koe","voice"],
+      ["音","oto","sound / noise"],
+      ["形","katachi","shape / form"],
+      ["色","iro","color"],
+      ["時","toki","time / moment / occasion"],
+      ["所","tokoro","place / location"],
+      ["物","mono","thing / object"],
+      ["事","koto","thing / matter / fact (abstract)"],
+      ["心","kokoro","heart / mind / spirit"],
+      ["夢","yume","dream"],
+      ["力","chikara","power / strength / ability"],
+    ]
+  },
+  /* 36 */ {
+    name:"Verbs — Movement & Travel",icon:"🏃",color:"#E74C3C",
+    tip:"Movement verbs are speaker-centered: 行く (iku = go away from speaker), 来る (kuru = come toward speaker). 帰る (kaeru) specifically means returning HOME — not just any return. Direction and destination matter!",
+    words:[
+      ["行く","iku","to go"],
+      ["来る","kuru","to come"],
+      ["帰る","kaeru","to return home / go back"],
+      ["歩く","aruku","to walk"],
+      ["走る","hashiru","to run"],
+      ["泳ぐ","oyogu","to swim"],
+      ["飛ぶ","tobu","to fly / jump"],
+      ["乗る","noru","to ride / board"],
+      ["降りる","oriru","to get off / descend"],
+      ["入る","hairu","to enter / go in"],
+      ["出る","deru","to exit / come out"],
+      ["止まる","tomaru","to stop"],
+      ["渡る","wataru","to cross (road/bridge)"],
+      ["曲がる","magaru","to turn / bend"],
+    ]
+  },
+  /* 37 */ {
+    name:"Verbs — Daily Routine",icon:"🌅",color:"#3498DB",
+    tip:"Notice verb groups: 食べる・起きる・寝る are ichidan (Group 2) — drop る to conjugate. 飲む・買う・作る are godan (Group 1) — change the vowel. くる (come) and する (do) are the only truly irregular verbs!",
+    words:[
+      ["食べる","taberu","to eat"],
+      ["飲む","nomu","to drink"],
+      ["起きる","okiru","to wake up / get up"],
+      ["寝る","neru","to sleep / lie down"],
+      ["洗う","arau","to wash"],
+      ["掃除する","sōji suru","to clean / do cleaning"],
+      ["働く","hataraku","to work"],
+      ["休む","yasumu","to rest / take a break"],
+      ["出かける","dekakeru","to go out"],
+      ["買う","kau","to buy"],
+      ["作る","tsukuru","to make / cook / create"],
+      ["使う","tsukau","to use"],
+      ["払う","harau","to pay"],
+      ["泊まる","tomaru","to stay (overnight)"],
+    ]
+  },
+  /* 38 */ {
+    name:"Verbs — Physical Actions",icon:"✋",color:"#27AE60",
+    tip:"Many physical action verbs have pairs: 開ける (akeru = open, transitive) / 開く (aku = open by itself); 閉める (shimeru = close, transitive) / 閉まる (shimaru = close by itself). Transitive vs intransitive is key in Japanese!",
+    words:[
+      ["見る","miru","to see / watch / look at"],
+      ["聞く","kiku","to listen / hear / ask"],
+      ["書く","kaku","to write"],
+      ["読む","yomu","to read"],
+      ["持つ","motsu","to hold / carry / have"],
+      ["置く","oku","to place / put down"],
+      ["取る","toru","to take / pick up"],
+      ["切る","kiru","to cut"],
+      ["押す","osu","to push"],
+      ["引く","hiku","to pull"],
+      ["開ける","akeru","to open (transitive)"],
+      ["閉める","shimeru","to close (transitive)"],
+      ["着る","kiru","to wear / put on (top)"],
+      ["脱ぐ","nugu","to take off (clothes)"],
+    ]
+  },
+  /* 39 */ {
+    name:"Verbs — Wearing & Carrying",icon:"👔",color:"#FF9800",
+    tip:"Wearing verbs depend on WHAT you're wearing: 着る (kiru) for tops/coats; 履く (haku) for bottoms/shoes/socks; かぶる (kaburu) for hats. かける (kakeru) for glasses. Japanese is very specific about how things are put on!",
+    words:[
+      ["着る","kiru","to wear / put on (shirt, coat)"],
+      ["履く","haku","to put on (shoes, trousers, socks)"],
+      ["かぶる","kaburu","to put on (hat / head item)"],
+      ["かける","kakeru","to put on (glasses)"],
+      ["脱ぐ","nugu","to take off (clothing)"],
+      ["持つ","motsu","to hold / carry"],
+      ["運ぶ","hakobu","to carry / transport"],
+      ["入れる","ireru","to put in / insert"],
+      ["出す","dasu","to take out / produce"],
+      ["送る","okuru","to send"],
+    ]
+  },
+  /* 40 */ {
+    name:"Verbs — Mental & Speech",icon:"🧠",color:"#9C27B0",
+    tip:"知る (shiru) = know a fact (binary: know or not); わかる (wakaru) = understand (degree of comprehension). These are often confused! 思う (omou) = think/feel casually; 考える (kangaeru) = think deeply/analyze.",
+    words:[
+      ["知る","shiru","to know (a fact)"],
+      ["わかる","wakaru","to understand"],
+      ["思う","omou","to think / feel / believe"],
+      ["考える","kangaeru","to think about / consider"],
+      ["言う","iu","to say / tell"],
+      ["話す","hanasu","to speak / talk"],
+      ["教える","oshieru","to teach / inform"],
+      ["答える","kotaeru","to answer"],
+      ["覚える","oboeru","to memorize / remember"],
+      ["忘れる","wasureru","to forget"],
+      ["習う","narau","to learn (from a teacher)"],
+      ["調べる","shiraberu","to look up / investigate"],
+      ["決める","kimeru","to decide"],
+      ["呼ぶ","yobu","to call (out to) / invite"],
+    ]
+  },
+  /* 41 */ {
+    name:"Verbs — Giving & Receiving",icon:"🤝",color:"#16A085",
+    tip:"The giving verbs encode gift direction: あげる (ageru) = give to others; もらう (morau) = receive from others; くれる (kureru) = give to ME. The relationship between giver and receiver changes the verb. Very Japanese!",
+    words:[
+      ["あげる","ageru","to give (to others / upward)"],
+      ["もらう","morau","to receive (from others)"],
+      ["くれる","kureru","to give (to me / downward)"],
+      ["貸す","kasu","to lend"],
+      ["借りる","kariru","to borrow"],
+      ["返す","kaesu","to return (something borrowed)"],
+      ["渡す","watasu","to hand over / pass"],
+      ["見せる","miseru","to show"],
+      ["手伝う","tetsudau","to help / assist"],
+      ["待つ","matsu","to wait"],
+    ]
+  },
+  /* 42 */ {
+    name:"Verbs — State & Change",icon:"🔄",color:"#607D8B",
+    tip:"Many state-change verbs come in transitive/intransitive pairs: 始める (hajimeru = start something) / 始まる (hajimaru = something starts). 変える (kaeru = change something) / 変わる (kawaru = something changes).",
+    words:[
+      ["ある","aru","to exist / be (inanimate things)"],
+      ["いる","iru","to exist / be (animate: people/animals)"],
+      ["なる","naru","to become"],
+      ["始まる","hajimaru","to begin (intransitive)"],
+      ["始める","hajimeru","to begin / start (transitive)"],
+      ["終わる","owaru","to end / finish (intransitive)"],
+      ["変わる","kawaru","to change (intransitive)"],
+      ["増える","fueru","to increase"],
+      ["減る","heru","to decrease"],
+      ["続く","tsuzuku","to continue"],
+      ["疲れる","tsukareru","to get tired"],
+      ["かかる","kakaru","to take (time/money/effort)"],
+    ]
+  },
+  /* 43 */ {
+    name:"More Common Verbs",icon:"⚙️",color:"#455A64",
+    tip:"する (suru = to do) is the most important irregular verb. It attaches to nouns to create verbs: 勉強する (benkyō suru = to study), 電話する (denwa suru = to call). する turns hundreds of nouns into verbs!",
+    words:[
+      ["する","suru","to do"],
+      ["会う","au","to meet"],
+      ["歌う","utau","to sing"],
+      ["急ぐ","isogu","to hurry"],
+      ["住む","sumu","to live / reside"],
+      ["立つ","tatsu","to stand"],
+      ["座る","suwaru","to sit (down)"],
+      ["並ぶ","narabu","to line up / stand in line"],
+      ["咲く","saku","to bloom (flowers)"],
+      ["降る","furu","to fall (rain / snow)"],
+      ["吹く","fuku","to blow (wind)"],
+      ["光る","hikaru","to shine / glitter"],
+      ["鳴る","naru","to ring / sound"],
+    ]
+  },
+  /* 44 */ {
+    name:"い-Adjectives: Size & Physical",icon:"📏",color:"#E74C3C",
+    tip:"い-adjectives always end in い and conjugate on their own. Negate: replace い→くない (大きい→大きくない). Past: replace い→かった (大きい→大きかった). They work like mini-verbs — no extra です conjugation needed!",
+    words:[
+      ["大きい","ōkii","big / large"],
+      ["小さい","chiisai","small / little"],
+      ["長い","nagai","long"],
+      ["短い","mijikai","short (in length)"],
+      ["高い","takai","tall / high"],
+      ["低い","hikui","low / short (in height)"],
+      ["広い","hiroi","wide / spacious"],
+      ["狭い","semai","narrow / cramped"],
+      ["速い","hayai","fast / quick"],
+      ["遅い","osoi","slow / late"],
+      ["重い","omoi","heavy"],
+      ["軽い","karui","light (in weight)"],
+      ["丸い","marui","round / circular"],
+    ]
+  },
+  /* 45 */ {
+    name:"い-Adjectives: Quality & Value",icon:"⭐",color:"#FF9800",
+    tip:"Many い-adjectives have interesting meanings: 正しい (tadashii = correct) — the kanji 正 (correct/upright) also means 'justice'. 若い (wakai = young) shares the root with 若者 (wakamono = young person). Kanji patterns help!",
+    words:[
+      ["良い","yoi / ii","good"],
+      ["悪い","warui","bad"],
+      ["新しい","atarashii","new"],
+      ["古い","furui","old (for things, not people)"],
+      ["難しい","muzukashii","difficult"],
+      ["易しい","yasashii","easy / gentle"],
+      ["正しい","tadashii","correct / right"],
+      ["多い","ōi","many / much"],
+      ["少ない","sukunai","few / little"],
+      ["若い","wakai","young"],
+      ["強い","tsuyoi","strong"],
+      ["弱い","yowai","weak"],
+    ]
+  },
+  /* 46 */ {
+    name:"い-Adjectives: Sensation & Taste",icon:"👅",color:"#9B59B6",
+    tip:"Hot/cold distinctions matter: 暑い (atsui) = hot air/weather; 熱い (atsui) = hot to touch. 寒い (samui) = cold air; 冷たい (tsumetai) = cold to touch. Same sounds, different kanji — context tells you which!",
+    words:[
+      ["暑い","atsui","hot (weather / air)"],
+      ["寒い","samui","cold (weather / air)"],
+      ["熱い","atsui","hot (to touch / temperature of object)"],
+      ["冷たい","tsumetai","cold (to touch)"],
+      ["暖かい","atatakai","warm"],
+      ["涼しい","suzushii","cool / refreshing"],
+      ["甘い","amai","sweet"],
+      ["辛い","karai","spicy / hot (taste)"],
+      ["苦い","nigai","bitter"],
+      ["おいしい","oishii","delicious / tasty"],
+      ["まずい","mazui","bad-tasting / unpleasant"],
+      ["明るい","akarui","bright / cheerful"],
+      ["暗い","kurai","dark / gloomy"],
+    ]
+  },
+  /* 47 */ {
+    name:"い-Adjectives: Feelings & Mood",icon:"😊",color:"#E91E63",
+    tip:"Feeling adjectives like 嬉しい (ureshii = happy) describe the speaker's direct emotions. To describe others' feelings, add そう (looks like): 悲しそう (kanashisō = looks sad). Japanese marks whose feeling it is!",
+    words:[
+      ["楽しい","tanoshii","fun / enjoyable"],
+      ["嬉しい","ureshii","happy / glad"],
+      ["悲しい","kanashii","sad"],
+      ["怖い","kowai","scary / frightening"],
+      ["恥ずかしい","hazukashii","embarrassing / shy"],
+      ["つまらない","tsumaranai","boring / trivial"],
+      ["面白い","omoshiroi","interesting / funny"],
+      ["眠い","nemui","sleepy"],
+      ["忙しい","isogashii","busy"],
+      ["ほしい","hoshii","wanted / desired"],
+      ["痛い","itai","painful / it hurts"],
+      ["うるさい","urusai","noisy / annoying"],
+    ]
+  },
+  /* 48 */ {
+    name:"な-Adjectives 1",icon:"🌟",color:"#009688",
+    tip:"な-adjectives need な before a noun: きれいな人 (kirei na hito = beautiful person). Before です they drop な: きれいです. They behave more like nouns — you can add さ to make an abstract noun: きれいさ (beauty)!",
+    words:[
+      ["好き","suki","liked / fond of"],
+      ["嫌い","kirai","disliked / hated"],
+      ["上手","jōzu","skilled / good at"],
+      ["下手","heta","unskilled / bad at"],
+      ["有名","yūmei","famous"],
+      ["便利","benri","convenient"],
+      ["きれい","kirei","pretty / beautiful / clean"],
+      ["親切","shinsetsu","kind / helpful"],
+      ["静か","shizuka","quiet / peaceful"],
+      ["にぎやか","nigiyaka","lively / bustling / noisy"],
+      ["元気","genki","healthy / energetic"],
+      ["大丈夫","daijōbu","okay / no problem"],
+      ["丁寧","teinei","polite / careful / thorough"],
+    ]
+  },
+  /* 49 */ {
+    name:"な-Adjectives 2",icon:"✨",color:"#FF7043",
+    tip:"大切 (taisetsu = important/precious): 大 (big/great) + 切 (cut/keenly), meaning something so crucial it cuts into your attention. 大変 (taihen = hard/terrible): 大 (big) + 変 (strange/change) = a big change = hardship!",
+    words:[
+      ["大切","taisetsu","important / precious / dear"],
+      ["簡単","kantan","simple / easy"],
+      ["特別","tokubetsu","special"],
+      ["大変","taihen","hard / difficult / terrible"],
+      ["暇","hima","free time / bored / not busy"],
+      ["安全","anzen","safe / secure"],
+      ["不便","fuben","inconvenient"],
+      ["自由","jiyū","free / freedom"],
+      ["心配","shinpai","worried / concern"],
+      ["大好き","daisuki","love / really like"],
+      ["嫌","iya","unpleasant / no way / dislike"],
+      ["駄目","dame","no good / not allowed / useless"],
+    ]
+  },
+  /* 50 */ {
+    name:"Adverbs — Degree & Amount",icon:"📊",color:"#2C3E50",
+    tip:"Degree adverbs modify adjectives: とても大きい (totemo ōkii = very big). あまり is tricky — it REQUIRES a negative: あまり大きくない (not very big). ぜんぜん similarly needs a negative: ぜんぜんわからない (don't understand at all)!",
+    words:[
+      ["とても","totemo","very / extremely"],
+      ["あまり","amari","not very (+ negative verb)"],
+      ["ぜんぜん","zenzen","not at all (+ negative)"],
+      ["もっと","motto","more"],
+      ["たくさん","takusan","a lot / many / much"],
+      ["少し","sukoshi","a little / a few"],
+      ["ちょっと","chotto","a little / just a moment"],
+      ["だいたい","daitai","generally / mostly / about"],
+      ["ほとんど","hotondo","almost / nearly / mostly"],
+      ["だいぶ","daibu","considerably / quite"],
+      ["全部","zenbu","all / everything"],
+      ["みんな","minna","everyone / everything / all"],
+      ["ちょうど","chōdo","exactly / just right"],
+    ]
+  },
+  /* 51 */ {
+    name:"Adverbs — Frequency & Manner",icon:"🔁",color:"#34495E",
+    tip:"Frequency adverbs: いつも (itsumo = always) > たいてい (taitei = usually) > よく (yoku = often) > ときどき (tokidoki = sometimes) > あまり〜ない (amari~nai = not often) > ぜんぜん〜ない (never). A useful spectrum!",
+    words:[
+      ["いつも","itsumo","always"],
+      ["たいてい","taitei","usually / generally"],
+      ["よく","yoku","often / well / frequently"],
+      ["ときどき","tokidoki","sometimes"],
+      ["まだ","mada","still / not yet"],
+      ["もう","mō","already / anymore"],
+      ["すぐ","sugu","immediately / right away / soon"],
+      ["また","mata","again / also"],
+      ["はじめて","hajimete","for the first time"],
+      ["ゆっくり","yukkuri","slowly / leisurely"],
+      ["いっしょに","issho ni","together"],
+      ["ひとりで","hitori de","alone / by oneself"],
+      ["まず","mazu","first of all / to begin with"],
+    ]
+  },
+  /* 52 */ {
+    name:"Question Words",icon:"❓",color:"#F39C12",
+    tip:"Most question words start with ど (do): どこ (where), どれ (which), どう (how), どんな (what kind). Adding か makes indefinites: 誰か (dareka = someone), 何か (nanika = something), どこか (dokoka = somewhere)!",
+    words:[
+      ["何","nani / nan","what"],
+      ["どこ","doko","where"],
+      ["いつ","itsu","when"],
+      ["誰","dare","who"],
+      ["どれ","dore","which (of 3 or more)"],
+      ["どちら","dochira","which (of 2) / which way"],
+      ["どう","dō","how / in what way"],
+      ["どんな","donna","what kind of"],
+      ["いくつ","ikutsu","how many / how old"],
+      ["いくら","ikura","how much (price)"],
+      ["なぜ","naze","why"],
+      ["どのくらい","dono kurai","how much / how long (extent)"],
+    ]
+  },
+  /* 53 */ {
+    name:"Greetings & Set Phrases",icon:"👋",color:"#E91E63",
+    tip:"いただきます (itadakimasu) before eating expresses gratitude to the food, the grower, and the cook. ごちそうさまでした after eating. ただいま (tadaima = I'm home!) is answered with おかえり (okaerinasai = Welcome back)!",
+    words:[
+      ["おはようございます","ohayō gozaimasu","good morning (formal)"],
+      ["こんにちは","konnichiwa","hello / good afternoon"],
+      ["こんばんは","konbanwa","good evening"],
+      ["さようなら","sayōnara","goodbye"],
+      ["ありがとうございます","arigatō gozaimasu","thank you (formal)"],
+      ["どういたしまして","dō itashimashite","you're welcome"],
+      ["すみません","sumimasen","excuse me / I'm sorry"],
+      ["はじめまして","hajimemashite","nice to meet you"],
+      ["よろしくおねがいします","yoroshiku onegaishimasu","please treat me well"],
+      ["いただきます","itadakimasu","let's eat (said before meals)"],
+      ["ごちそうさまでした","gochisōsama deshita","thanks for the meal"],
+      ["おやすみなさい","oyasuminasai","good night"],
+      ["いってきます","ittekimasu","I'm heading out"],
+      ["ただいま","tadaima","I'm home!"],
+    ]
+  },
+  /* 54 */ {
+    name:"Particles",icon:"🔗",color:"#546E7A",
+    tip:"Particles are the skeleton of Japanese sentences. は (wa) marks TOPIC; が (ga) marks SUBJECT; を (wo) marks OBJECT. に marks direction/time; で marks location of action or means. Master these and sentences come alive!",
+    words:[
+      ["は","wa","topic marker (shows what's being discussed)"],
+      ["が","ga","subject marker (shows who/what does the action)"],
+      ["を","wo / o","object marker (shows what's acted upon)"],
+      ["に","ni","to / at / in (direction / time / purpose)"],
+      ["で","de","at / by / with (place of action / means)"],
+      ["と","to","and / with (together with a person)"],
+      ["の","no","of / possessive ('s)"],
+      ["も","mo","also / too / even"],
+      ["から","kara","from / because / since"],
+      ["まで","made","until / up to / as far as"],
+      ["へ","e","to / toward (direction)"],
+      ["より","yori","than / more than (comparison)"],
+    ]
+  },
+  /* 55 */ {
+    name:"Ko-So-A-Do System",icon:"📍",color:"#00BCD4",
+    tip:"Japanese uses the Ko-So-A-Do system: こ (ko) = near speaker, そ (so) = near listener, あ (a) = away from both, ど (do) = question word. Apply to things (これ), places (ここ), directions (こちら) — one system, many words!",
+    words:[
+      ["ここ","koko","here (near speaker)"],
+      ["そこ","soko","there (near listener)"],
+      ["あそこ","asoko","over there (away from both)"],
+      ["これ","kore","this (thing)"],
+      ["それ","sore","that (thing near you)"],
+      ["あれ","are","that (thing over there)"],
+      ["この","kono","this (+ noun)"],
+      ["その","sono","that (+ noun)"],
+      ["あの","ano","that over there (+ noun)"],
+      ["こちら","kochira","this way / here (polite)"],
+      ["そちら","sochira","that way / there (polite)"],
+      ["あちら","achira","that way / over there (polite)"],
+    ]
+  },
+  /* 56 */ {
+    name:"Conjunctions & Expressions",icon:"💬",color:"#795548",
+    tip:"それから (sorekara = and then / after that) vs そして (soshite = and also). だから (dakara = so/therefore) starts with だ, showing it's based on a previous statement. ところで (tokorode = by the way) elegantly shifts topic!",
+    words:[
+      ["でも","demo","but / however"],
+      ["そして","soshite","and then / and also"],
+      ["それから","sorekara","and then / after that"],
+      ["だから","dakara","so / therefore / that's why"],
+      ["でも","demo","but / however (sentence-start)"],
+      ["ところで","tokorode","by the way"],
+      ["たとえば","tatoeba","for example"],
+      ["もちろん","mochiron","of course / certainly"],
+      ["たぶん","tabun","probably / perhaps"],
+      ["きっと","kitto","surely / certainly / definitely"],
+      ["もし","moshi","if / supposing"],
+      ["実は","jitsu wa","actually / to tell the truth"],
+    ]
+  },
+];
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+const state = {
+  view: 'home',
+  currentGroup: 0,
+  tab: 'cards',
+  flipped: new Set(),
+  quizState: null,
+  groupProgress: {},
+  finalQuiz: null,
+};
+
+function loadProgress() {
+  try {
+    const d = localStorage.getItem('jlpt_n5_v3');
+    if (d) {
+      const saved = JSON.parse(d);
+      // support both old format (plain object) and new format (with nav state)
+      if (saved.groupProgress) {
+        state.groupProgress = saved.groupProgress;
+        if (saved.view) state.view = saved.view;
+        if (saved.currentGroup != null) state.currentGroup = saved.currentGroup;
+        if (saved.tab) state.tab = saved.tab;
+      } else {
+        state.groupProgress = saved; // legacy: was just the progress object
+      }
+    }
+  } catch(e) {}
+}
+function saveProgress() {
+  try {
+    localStorage.setItem('jlpt_n5_v3', JSON.stringify({
+      groupProgress: state.groupProgress,
+      view: state.view,
+      currentGroup: state.currentGroup,
+      tab: state.tab,
+    }));
+  } catch(e) {}
+}
+
+// ─────────────────────────────────────────────
+// QUIZ LOGIC
+// ─────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getWrongAnswers(word, pool) {
+  const others = pool.filter(w => w[2] !== word[2]);
+  if (others.length >= 3) return shuffle(others).slice(0, 3);
+  const allWords = GROUPS.flatMap(g => g.words);
+  return shuffle(allWords.filter(w => w[2] !== word[2])).slice(0, 3);
+}
+
+function buildQuestions(wordPool, count) {
+  const picked = shuffle([...wordPool]).slice(0, count);
+  return picked.map(word => {
+    const wrongs = getWrongAnswers(word, wordPool);
+    const choices = shuffle([word, ...wrongs]);
+    return { word, choices, correctIdx: choices.indexOf(word), answered: null };
+  });
+}
+
+// Quiz ALL words in the group
+function generateQuiz(gi) {
+  const words = GROUPS[gi].words;
+  return { groupIdx: gi, questions: buildQuestions(words, words.length), current: 0, score: 0, done: false };
+}
+
+// Final quiz: 40 random questions from all groups
+function generateFinalQuiz() {
+  const all = GROUPS.flatMap(g => g.words);
+  return { questions: buildQuestions(all, 40), current: 0, score: 0, done: false };
+}
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function completedCount() {
+  return Object.values(state.groupProgress).filter(Boolean).length;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.view === 'home') app.innerHTML = renderHome();
+  else if (state.view === 'group') app.innerHTML = renderGroup();
+  else app.innerHTML = renderFinalScreen();
+  attachEvents();
+}
+
+function renderHome() {
+  const done = completedCount(), total = GROUPS.length;
+  const pct = Math.round(done / total * 100);
+  const totalWords = GROUPS.reduce((s,g) => s + g.words.length, 0);
+  const cards = GROUPS.map((g, i) => {
+    const isDone = state.groupProgress[i];
+    return `<div class="group-card${isDone?' done':''}" data-action="open-group" data-idx="${i}">
+      <div class="group-card-bar" style="background:${g.color}"></div>
+      <span class="group-card-icon">${g.icon}</span>
+      <div class="group-card-name">${g.name}</div>
+      <div class="group-card-count">${g.words.length} words</div>
+      ${isDone?'<span class="group-card-badge">✅</span>':''}
+    </div>`;
+  }).join('');
+  const unlocked = done >= Math.ceil(total * 0.4);
+  return `
+  <div class="header">
+    <div class="header-top">
+      <span class="header-title">🎌 JLPT N5 Trainer</span>
+      <span style="font-size:12px;color:#718096;font-weight:600">${pct}%</span>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    <div class="progress-text">${done} / ${total} groups · ${totalWords} total words</div>
+  </div>
+  <div class="screen animate-in">
+    <div class="section-title">Choose a Group</div>
+    <div class="groups-grid">${cards}</div>
+    <div style="margin-top:20px">
+      <div class="final-banner" style="${!unlocked?'opacity:.55':''}">
+        <h2>🏆 Final Review Quiz</h2>
+        <p>${unlocked?'40 questions from ALL groups — test your mastery!':'Complete '+Math.ceil(total*.4)+' groups to unlock'}</p>
+        ${unlocked?`<button class="btn btn-ghost" style="margin-top:12px" data-action="open-final">Start Final Quiz →</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderGroup() {
+  const gi = state.currentGroup, g = GROUPS[gi];
+  const isDone = state.groupProgress[gi];
+  return `
+  <div class="header">
+    <div class="header-top">
+      <button class="back-btn" data-action="go-home">← Groups</button>
+      <span style="flex:1;text-align:center;font-size:12px;color:#718096;font-weight:600">${gi+1} / ${GROUPS.length}</span>
+      <div style="width:80px"></div>
+    </div>
+  </div>
+  <div class="screen animate-in">
+    <div class="group-hd">
+      <div class="group-hd-icon" style="background:${g.color}22">${g.icon}</div>
+      <div>
+        <div class="group-hd-name">${g.name}</div>
+        <div class="group-hd-sub">${g.words.length} words${isDone?' · ✅ Completed':''}</div>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-label">💡 Memory Tip</div>
+      ${g.tip}
+    </div>
+    <div class="tabs">
+      <button class="tab${state.tab==='cards'?' active':''}" data-action="set-tab" data-tab="cards">🃏 Flashcards</button>
+      <button class="tab${state.tab==='quiz'?' active':''}" data-action="set-tab" data-tab="quiz">📝 Quiz (${g.words.length}Q)</button>
+    </div>
+    ${state.tab==='cards' ? renderFlashcards(gi, g) : renderQuiz(gi, g)}
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-secondary" data-action="prev-group"${gi===0?' disabled':''}>← Prev</button>
+    <button class="btn btn-primary" data-action="next-group"${gi===GROUPS.length-1?' disabled':''}>Next →</button>
+  </div>`;
+}
+
+function renderFlashcards(gi, g) {
+  const cards = g.words.map((w, i) => {
+    const key = `${gi}-${i}`, flip = state.flipped.has(key);
+    return `<div class="fc${flip?' flipped':''}" data-action="flip" data-key="${key}">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-kanji">${w[0]}</div>
+          <div class="fc-romaji">${w[1]}</div>
+          <div class="fc-hint">tap to flip</div>
+        </div>
+        <div class="fc-back" style="background:${g.color}">
+          <div class="fc-meaning">${w[2]}</div>
+          <div class="fc-romaji-back">${w[1]}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  const allFlip = g.words.every((_,i) => state.flipped.has(`${gi}-${i}`));
+  const flippedCount = g.words.filter((_,i) => state.flipped.has(`${gi}-${i}`)).length;
+  return `
+    <div style="font-size:12px;color:#718096;margin-bottom:8px;text-align:right">${flippedCount}/${g.words.length} revealed</div>
+    <div class="fc-grid">${cards}</div>
+    <div class="fc-controls">
+      <button class="btn btn-secondary" style="font-size:13px" data-action="flip-all">${allFlip?'↺ Reset':'👁 Reveal All'}</button>
+      <button class="btn btn-primary" style="font-size:13px" data-action="set-tab" data-tab="quiz">Quiz All ${g.words.length} →</button>
+    </div>`;
+}
+
+function renderQuiz(gi, g) {
+  const qs = state.quizState;
+  if (!qs || qs.groupIdx !== gi) {
+    return `<div class="quiz-wrap" style="text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">📝</div>
+      <p style="color:#4a5568;margin-bottom:6px;font-size:14px"><strong>Quiz all ${g.words.length} words</strong> in ${g.name}.</p>
+      <p style="color:#718096;margin-bottom:18px;font-size:13px">Pass threshold: 60% correct.</p>
+      <button class="btn btn-primary btn-block" data-action="start-quiz">Start Quiz (${g.words.length} questions)</button>
+    </div>`;
+  }
+  if (qs.done) return renderQuizResult(qs, g);
+  const q = qs.questions[qs.current];
+  const pct = Math.round(qs.current / qs.questions.length * 100);
+  const cbs = q.choices.map((c,i) => {
+    let cls = 'qc', dis = '';
+    if (q.answered !== null) {
+      dis = 'disabled';
+      if (i === q.correctIdx) cls += ' correct';
+      else if (i === q.answered) cls += ' wrong';
+    }
+    return `<button class="${cls}" data-action="answer" data-idx="${i}" ${dis}>${c[2]}</button>`;
+  }).join('');
+  return `<div class="quiz-wrap">
+    <div class="quiz-meta">
+      <span>Q${qs.current+1} / ${qs.questions.length}</span>
+      <span>✅ ${qs.score} &nbsp;❌ ${qs.current - qs.score}</span>
+    </div>
+    <div class="quiz-mini-bar"><div class="quiz-mini-fill" style="width:${pct}%"></div></div>
+    <div class="quiz-word">${q.word[0]}</div>
+    <div class="quiz-romaji">${q.word[1]}</div>
+    <div class="quiz-prompt">What does this mean?</div>
+    <div class="quiz-choices">${cbs}</div>
+  </div>`;
+}
+
+function renderQuizResult(qs, g) {
+  const s = qs.score, t = qs.questions.length, p = Math.round(s/t*100);
+  const passed = p >= 60;
+  const msg = p===100?'🎉 Perfect! Flawless!':p>=80?'🌟 Excellent work!':p>=60?'👍 Passed! Keep it up!':'📚 Keep practicing — you\'ll get it!';
+  const missedRows = qs.questions
+    .filter(q => q.answered !== q.correctIdx)
+    .map(q => `<div class="result-word-row miss">
+      <span><strong>${q.word[0]}</strong> <span style="color:#718096;font-size:11px">${q.word[1]}</span></span>
+      <span style="color:#c53030">${q.word[2]}</span>
+    </div>`).join('');
+  return `<div class="quiz-wrap">
+    <div class="quiz-result">
+      <div class="result-score">${s}/${t}</div>
+      <div class="result-pct">${p}% ${passed?'<span style="color:#48bb78">PASS ✅</span>':'<span style="color:#fc8181">RETRY</span>'}</div>
+      <div class="result-msg">${msg}</div>
+      ${missedRows?`<div style="font-size:12px;font-weight:700;color:#718096;text-align:left;margin-bottom:4px">Missed (${t-s}):</div>
+        <div class="result-words">${missedRows}</div>`:''}
+      <div class="btn-row">
+        <button class="btn btn-secondary" data-action="retry-quiz">↺ Retry</button>
+        <button class="btn btn-primary" data-action="start-quiz">New Quiz</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── FINAL QUIZ ────────────────────────────────
+function renderFinalScreen() {
+  const hdr = `<div class="header">
+    <div class="header-top">
+      <button class="back-btn" data-action="go-home">← Back</button>
+      <span style="flex:1;text-align:center;font-weight:800;color:#c0392b">🏆 Final Quiz</span>
+      <div style="width:80px"></div>
+    </div>
+  </div>`;
+  if (!state.finalQuiz) {
+    return `${hdr}<div class="screen animate-in">
+      <div class="final-banner">
+        <h2>🏆 Final Review Quiz</h2>
+        <p>40 questions drawn randomly from all ${GROUPS.length} groups. Good luck!</p>
+      </div>
+      <button class="btn btn-primary btn-block" data-action="start-final-now">Start Quiz (40 questions)</button>
+    </div>`;
+  }
+  const fq = state.finalQuiz;
+  if (fq.done) {
+    const s = fq.score, t = fq.questions.length, p = Math.round(s/t*100);
+    const msg = p>=90?'🎉 Master level!':p>=70?'🌟 Excellent!':p>=50?'👍 Good work!':'📚 Keep studying!';
+    return `${hdr}<div class="screen animate-in">
+      <div class="quiz-wrap">
+        <div class="quiz-result">
+          <div style="font-size:18px;font-weight:800;margin-bottom:8px">Final Results</div>
+          <div class="result-score">${s}/${t}</div>
+          <div class="result-pct">${p}%</div>
+          <div class="result-msg">${msg}</div>
+          <div class="btn-row">
+            <button class="btn btn-secondary" data-action="go-home">🏠 Home</button>
+            <button class="btn btn-primary" data-action="restart-final">↺ Retry</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+  const q = fq.questions[fq.current];
+  const pct = Math.round(fq.current / fq.questions.length * 100);
+  const cbs = q.choices.map((c,i) => {
+    let cls = 'qc', dis = '';
+    if (q.answered !== null) {
+      dis = 'disabled';
+      if (i === q.correctIdx) cls += ' correct';
+      else if (i === q.answered) cls += ' wrong';
+    }
+    return `<button class="${cls}" data-action="answer-final" data-idx="${i}" ${dis}>${c[2]}</button>`;
+  }).join('');
+  return `${hdr}<div class="screen animate-in">
+    <div class="quiz-wrap">
+      <div class="quiz-meta">
+        <span>Q${fq.current+1} / ${fq.questions.length}</span>
+        <span>✅ ${fq.score} &nbsp;❌ ${fq.current - fq.score}</span>
+      </div>
+      <div class="quiz-mini-bar"><div class="quiz-mini-fill" style="width:${pct}%"></div></div>
+      <div class="quiz-word">${q.word[0]}</div>
+      <div class="quiz-romaji">${q.word[1]}</div>
+      <div class="quiz-prompt">What does this mean?</div>
+      <div class="quiz-choices">${cbs}</div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// EVENTS
+// ─────────────────────────────────────────────
+let _autoTimer = null;
+function scheduleAdvance(action) {
+  clearTimeout(_autoTimer);
+  _autoTimer = setTimeout(() => { handleClick({ currentTarget: { dataset: { action } } }); }, 1200);
+}
+
+function attachEvents() {
+  document.querySelectorAll('[data-action]').forEach(el => el.addEventListener('click', handleClick));
+}
+
+function handleClick(e) {
+  const a = e.currentTarget.dataset.action;
+  if (a === 'open-group') {
+    state.currentGroup = +e.currentTarget.dataset.idx;
+    state.view = 'group'; state.tab = 'cards';
+    state.flipped = new Set(); state.quizState = null;
+    saveProgress(); render(); scrollTo(0,0);
+  } else if (a === 'go-home') {
+    state.view = 'home'; saveProgress(); render(); scrollTo(0,0);
+  } else if (a === 'set-tab') {
+    state.tab = e.currentTarget.dataset.tab; saveProgress(); render();
+  } else if (a === 'flip') {
+    const k = e.currentTarget.dataset.key;
+    state.flipped.has(k) ? state.flipped.delete(k) : state.flipped.add(k);
+    e.currentTarget.classList.toggle('flipped');
+    // Update counters without full re-render
+    const gi = state.currentGroup, g = GROUPS[gi];
+    const cnt = g.words.filter((_,i) => state.flipped.has(`${gi}-${i}`)).length;
+    const el = document.querySelector('.fc-grid').previousElementSibling;
+    if (el) el.textContent = `${cnt}/${g.words.length} revealed`;
+    const allF = cnt === g.words.length;
+    const btn = document.querySelector('[data-action="flip-all"]');
+    if (btn) btn.textContent = allF ? '↺ Reset' : '👁 Reveal All';
+  } else if (a === 'flip-all') {
+    const gi = state.currentGroup, g = GROUPS[gi];
+    const allF = g.words.every((_,i) => state.flipped.has(`${gi}-${i}`));
+    g.words.forEach((_,i) => allF ? state.flipped.delete(`${gi}-${i}`) : state.flipped.add(`${gi}-${i}`));
+    render();
+  } else if (a === 'start-quiz') {
+    clearTimeout(_autoTimer); state.quizState = generateQuiz(state.currentGroup); render();
+  } else if (a === 'retry-quiz') {
+    clearTimeout(_autoTimer); state.quizState = null; render();
+  } else if (a === 'answer') {
+    const qs = state.quizState;
+    if (!qs || qs.done) return;
+    const q = qs.questions[qs.current];
+    if (q.answered !== null) return;
+    const idx = +e.currentTarget.dataset.idx;
+    q.answered = idx;
+    if (idx === q.correctIdx) qs.score++;
+    render();
+    scheduleAdvance('next-q');
+  } else if (a === 'next-q') {
+    clearTimeout(_autoTimer);
+    const qs = state.quizState;
+    qs.current++;
+    if (qs.current >= qs.questions.length) {
+      qs.done = true;
+      if (qs.score / qs.questions.length >= 0.6) {
+        state.groupProgress[state.currentGroup] = true; saveProgress();
+      }
+    }
+    render();
+  } else if (a === 'prev-group') {
+    if (state.currentGroup > 0) { state.currentGroup--; state.tab='cards'; state.flipped=new Set(); state.quizState=null; saveProgress(); render(); scrollTo(0,0); }
+  } else if (a === 'next-group') {
+    if (state.currentGroup < GROUPS.length-1) { state.currentGroup++; state.tab='cards'; state.flipped=new Set(); state.quizState=null; saveProgress(); render(); scrollTo(0,0); }
+  } else if (a === 'open-final') {
+    state.view = 'final'; state.finalQuiz = null; saveProgress(); render(); scrollTo(0,0);
+  } else if (a === 'start-final-now') {
+    state.finalQuiz = generateFinalQuiz(); render();
+  } else if (a === 'answer-final') {
+    const fq = state.finalQuiz;
+    if (!fq || fq.done) return;
+    const q = fq.questions[fq.current];
+    if (q.answered !== null) return;
+    const idx = +e.currentTarget.dataset.idx;
+    q.answered = idx;
+    if (idx === q.correctIdx) fq.score++;
+    render();
+    scheduleAdvance('next-final');
+  } else if (a === 'next-final') {
+    clearTimeout(_autoTimer);
+    state.finalQuiz.current++;
+    if (state.finalQuiz.current >= state.finalQuiz.questions.length) state.finalQuiz.done = true;
+    render();
+  } else if (a === 'restart-final') {
+    state.finalQuiz = null; render();
+  }
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+loadProgress();
+render();
+</script>
+</body>
+</html>
