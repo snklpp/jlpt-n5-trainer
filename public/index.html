@@ -6,87 +6,211 @@
 <title>JLPT N5 Trainer</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f2f2f7;--surface:#fff;--surface2:#f2f2f7;--surface3:#e5e5ea;
+  --border:rgba(0,0,0,.08);--border2:rgba(0,0,0,.13);
+  --text:#1c1c1e;--text2:#48484a;--text3:#8e8e93;--text4:#aeaeb2;
+  --accent:#e74c3c;--accent2:#c0392b;
+  --accent-bg:rgba(231,76,60,.09);
+  --accent-grad:linear-gradient(135deg,#ff6b5b,#e74c3c);
+  --green:#34c759;--green-bg:rgba(52,199,89,.12);
+  --sh-xs:0 1px 2px rgba(0,0,0,.06);
+  --sh-sm:0 2px 8px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 20px rgba(0,0,0,.09),0 2px 6px rgba(0,0,0,.05);
+  --r:16px;--r-sm:10px;--ease:.22s cubic-bezier(.25,.46,.45,.94);
+}
+:root.dark{
+  --bg:#000;--surface:#1c1c1e;--surface2:#2c2c2e;--surface3:#3a3a3c;
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);
+  --text:#f5f5f7;--text2:#ebebf0;--text3:#8e8e93;--text4:#636366;
+  --accent-bg:rgba(231,76,60,.15);--green-bg:rgba(52,199,89,.18);
+  --sh-xs:0 1px 3px rgba(0,0,0,.4);
+  --sh-sm:0 2px 10px rgba(0,0,0,.4),0 1px 3px rgba(0,0,0,.3);
+  --sh-md:0 4px 24px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3);
+}
 html{font-size:16px;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh;max-width:500px;margin:0 auto;padding-bottom:80px}
-.header{background:#fff;padding:12px 16px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.1)}
-.header-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.header-title{font-size:18px;font-weight:800;color:#c0392b;flex:1}
-.progress-bar-wrap{background:#e2e8f0;border-radius:999px;height:7px;overflow:hidden}
-.progress-bar-fill{height:100%;background:linear-gradient(90deg,#e74c3c,#c0392b);border-radius:999px;transition:width .4s ease}
-.progress-text{font-size:11px;color:#718096;margin-top:3px;text-align:right}
-.screen{padding:14px}
-.animate-in{animation:slideIn .25s ease}
-@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.section-title{font-size:16px;font-weight:700;margin-bottom:10px;color:#2d3748}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;max-width:500px;margin:0 auto;padding-bottom:80px;
+  transition:background var(--ease),color var(--ease);
+}
+
+/* HEADER */
+.header{
+  background:rgba(255,255,255,.82);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  padding:12px 16px;position:sticky;top:0;z-index:100;
+  border-bottom:1px solid var(--border);
+  transition:background var(--ease);
+}
+:root.dark .header{background:rgba(28,28,30,.85)}
+.header-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.header-title{font-size:17px;font-weight:800;color:var(--accent);flex:1;letter-spacing:-.3px}
+.icon-btn{
+  width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--surface2);color:var(--text2);font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--ease);box-shadow:var(--sh-xs);
+  flex-shrink:0;
+}
+.icon-btn:active{transform:scale(.88)}
+.progress-bar-wrap{background:var(--surface3);border-radius:999px;height:5px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--accent-grad);border-radius:999px;transition:width .5s cubic-bezier(.25,.46,.45,.94)}
+.progress-text{font-size:11px;color:var(--text3);margin-top:4px;display:flex;justify-content:space-between;font-weight:500}
+
+/* SCREEN */
+.screen{padding:14px 14px 0}
+.animate-in{animation:slideIn .28s cubic-bezier(.25,.46,.45,.94)}
+@keyframes slideIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* HOME */
+.section-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px}
+.section-sub{font-size:12px;color:var(--text3);font-weight:500}
 .groups-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.group-card{background:#fff;border-radius:14px;padding:14px 12px;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:0 2px 8px rgba(0,0,0,.08);border:2px solid transparent;position:relative;overflow:hidden;user-select:none}
-.group-card:active{transform:scale(.96)}
-.group-card.done{border-color:#68d391}
-.group-card-bar{position:absolute;top:0;left:0;right:0;height:4px;border-radius:14px 14px 0 0}
-.group-card-icon{font-size:26px;margin-bottom:6px;display:block}
-.group-card-name{font-size:12px;font-weight:700;color:#2d3748;margin-bottom:3px;line-height:1.3}
-.group-card-count{font-size:11px;color:#a0aec0}
-.group-card-badge{position:absolute;top:8px;right:8px;font-size:13px}
-.group-hd{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:14px}
-.group-hd-icon{font-size:40px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:18px;flex-shrink:0}
-.group-hd-name{font-size:18px;font-weight:800;color:#2d3748}
-.group-hd-sub{font-size:13px;color:#718096;margin-top:2px}
-.tip-card{background:#fffbeb;border:1px solid #f6e05e;border-radius:12px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.65;color:#744210}
-.tip-label{font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;color:#b7791f}
-.tabs{display:flex;background:#fff;border-radius:12px;padding:4px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
-.tab{flex:1;padding:9px;text-align:center;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;color:#718096;transition:all .18s;border:none;background:none;font-family:inherit}
-.tab.active{background:#e74c3c;color:#fff}
+.group-card{
+  background:var(--surface);border-radius:var(--r);
+  padding:14px 12px 12px;cursor:pointer;
+  transition:transform .12s,box-shadow .12s,background var(--ease);
+  box-shadow:var(--sh-sm);border:1px solid var(--border);
+  position:relative;overflow:hidden;user-select:none;
+}
+.group-card:active{transform:scale(.95)}
+.group-card.done{border-color:rgba(52,199,89,.4)}
+.group-card-bar{position:absolute;top:0;left:0;right:0;height:3px}
+.group-card-icon{font-size:24px;margin-bottom:7px;display:block;line-height:1}
+.group-card-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;line-height:1.3;letter-spacing:-.1px}
+.group-card-count{font-size:11px;color:var(--text3);font-weight:500}
+.group-card-meta{display:flex;align-items:center;gap:5px;margin-top:5px}
+.group-card-badge{font-size:11px;background:var(--green-bg);color:var(--green);border-radius:999px;padding:2px 7px;font-weight:700}
+.group-card-kanji{font-size:10px;color:var(--text3);font-weight:600;background:var(--surface2);border-radius:999px;padding:2px 6px;border:1px solid var(--border)}
+
+/* GROUP DETAIL */
+.group-hd{
+  background:var(--surface);border-radius:var(--r);
+  padding:16px;margin-bottom:10px;
+  box-shadow:var(--sh-sm);border:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;
+}
+.group-hd-icon{font-size:34px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:15px;flex-shrink:0}
+.group-hd-name{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.group-hd-sub{font-size:12px;color:var(--text3);margin-top:2px;font-weight:500}
+.group-hd-pills{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+.pill.kanji-pill{color:var(--accent);background:var(--accent-bg);border-color:transparent}
+.pill.done-pill{color:var(--green);background:var(--green-bg);border-color:transparent}
+
+/* TIP */
+.tip-card{
+  background:rgba(255,193,7,.07);
+  border:1px solid rgba(255,193,7,.2);
+  border-radius:var(--r-sm);
+  padding:12px 14px;margin-bottom:10px;
+  font-size:13px;line-height:1.65;color:var(--text2);
+}
+:root.dark .tip-card{background:rgba(255,193,7,.05);border-color:rgba(255,193,7,.12)}
+.tip-label{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;color:#f39c12;display:flex;align-items:center;gap:4px}
+
+/* TABS */
+.tabs{display:flex;background:var(--surface2);border-radius:var(--r-sm);padding:3px;margin-bottom:10px;border:1px solid var(--border)}
+.tab{flex:1;padding:8px 4px;text-align:center;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text3);transition:all var(--ease);border:none;background:none;font-family:inherit}
+.tab.active{background:var(--surface);color:var(--accent);box-shadow:var(--sh-xs)}
+
+/* FLASHCARDS */
+.fc-stats{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:500}
 .fc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.fc{perspective:1000px;height:128px;cursor:pointer;user-select:none}
-.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .45s ease}
+.fc{perspective:1000px;height:130px;cursor:pointer;user-select:none;position:relative}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.25,.46,.45,.94)}
 .fc.flipped .fc-inner{transform:rotateY(180deg)}
-.fc-front,.fc-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center}
-.fc-front{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.fc-back{transform:rotateY(180deg);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.fc-kanji{font-size:24px;font-weight:800;margin-bottom:3px;line-height:1.2}
-.fc-romaji{font-size:11px;color:#718096}
+.fc-front,.fc-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:var(--r-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center}
+.fc-front{background:var(--surface);box-shadow:var(--sh-sm);border:1px solid var(--border)}
+.fc-back{transform:rotateY(180deg);color:#fff;box-shadow:var(--sh-md)}
+.fc-kanji{font-size:25px;font-weight:800;line-height:1.2;color:var(--text)}
+.fc-romaji{font-size:11px;color:var(--text3);margin-top:2px;font-weight:500}
 .fc-meaning{font-size:13px;font-weight:700;line-height:1.4}
-.fc-romaji-back{font-size:10px;opacity:.85;margin-top:3px}
-.fc-hint{font-size:10px;color:#a0aec0;margin-top:5px}
-.fc-controls{margin-top:12px;text-align:center;display:flex;gap:8px;justify-content:center}
-.quiz-wrap{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.quiz-meta{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;color:#718096}
-.quiz-mini-bar{background:#e2e8f0;border-radius:999px;height:5px;overflow:hidden;margin-bottom:14px}
-.quiz-mini-fill{height:100%;background:linear-gradient(90deg,#e74c3c,#c0392b);border-radius:999px;transition:width .3s}
-.quiz-word{font-size:38px;font-weight:800;text-align:center;margin-bottom:4px;line-height:1.2}
-.quiz-romaji{font-size:13px;text-align:center;color:#718096;margin-bottom:18px}
-.quiz-prompt{font-size:13px;font-weight:600;text-align:center;color:#4a5568;margin-bottom:12px}
+.fc-romaji-back{font-size:10px;opacity:.8;margin-top:3px}
+.fc-hint{font-size:10px;color:var(--text4);margin-top:6px}
+
+/* KANJI DONE BUTTON */
+.kanji-btn{
+  position:absolute;top:6px;right:6px;
+  width:26px;height:26px;border-radius:50%;
+  border:1.5px solid var(--border2);
+  background:var(--surface2);
+  font-size:10px;font-weight:700;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text3);
+  transition:all var(--ease);
+  z-index:10;line-height:1;
+  font-family:inherit;
+}
+.kanji-btn:active{transform:scale(.82)}
+.kanji-btn.kdone{background:var(--green);border-color:var(--green);color:#fff;font-size:13px}
+
+.fc-controls{margin-top:12px;display:flex;gap:8px;justify-content:center}
+
+/* QUIZ */
+.quiz-wrap{background:var(--surface);border-radius:var(--r);padding:18px;box-shadow:var(--sh-sm);border:1px solid var(--border)}
+.quiz-meta{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;color:var(--text3);font-weight:600}
+.quiz-mini-bar{background:var(--surface3);border-radius:999px;height:4px;overflow:hidden;margin-bottom:16px}
+.quiz-mini-fill{height:100%;background:var(--accent-grad);border-radius:999px;transition:width .4s cubic-bezier(.25,.46,.45,.94)}
+.quiz-word{font-size:42px;font-weight:800;text-align:center;margin-bottom:3px;line-height:1.1;color:var(--text)}
+.quiz-romaji{font-size:13px;text-align:center;color:var(--text3);margin-bottom:18px;font-weight:500}
+.quiz-prompt{font-size:11px;font-weight:700;text-align:center;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:.6px}
 .quiz-choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.qc{padding:13px 10px;border:2px solid #e2e8f0;border-radius:11px;cursor:pointer;font-size:13px;text-align:center;transition:all .15s;background:#fff;font-family:inherit;color:#2d3748;line-height:1.3}
-.qc:hover:not([disabled]){border-color:#e74c3c;background:#fff5f5}
-.qc.correct{border-color:#48bb78!important;background:#f0fff4!important;color:#276749!important}
-.qc.wrong{border-color:#fc8181!important;background:#fff5f5!important;color:#c53030!important}
+.qc{
+  padding:14px 10px;border:1.5px solid var(--border2);border-radius:var(--r-sm);
+  cursor:pointer;font-size:13px;text-align:center;
+  transition:all .15s;background:var(--surface2);
+  font-family:inherit;color:var(--text);line-height:1.3;font-weight:500;
+}
+.qc:hover:not([disabled]){border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+.qc.correct{border-color:var(--green)!important;background:var(--green-bg)!important;color:#1a7c2a!important}
+:root.dark .qc.correct{color:var(--green)!important}
+.qc.wrong{border-color:#ff453a!important;background:rgba(255,69,58,.08)!important;color:#c0392b!important}
+:root.dark .qc.wrong{color:#ff453a!important}
 .qc[disabled]{cursor:default}
-.quiz-result{text-align:center;padding:16px 0}
-.result-score{font-size:60px;font-weight:900;color:#e74c3c}
-.result-pct{font-size:16px;color:#718096;margin-bottom:6px}
-.result-msg{font-size:15px;font-weight:600;color:#2d3748;margin-bottom:20px}
-.final-banner{background:linear-gradient(135deg,#e74c3c,#c0392b);border-radius:18px;padding:22px;text-align:center;color:#fff;margin-bottom:20px}
-.final-banner h2{font-size:22px;font-weight:900;margin-bottom:6px}
+
+/* RESULT */
+.quiz-result{text-align:center;padding:12px 0}
+.result-score{font-size:56px;font-weight:900;color:var(--accent);line-height:1;letter-spacing:-2px}
+.result-pct{font-size:14px;color:var(--text3);margin:6px 0;font-weight:500}
+.result-msg{font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px}
+
+/* FINAL BANNER */
+.final-banner{background:var(--accent-grad);border-radius:var(--r);padding:22px;text-align:center;color:#fff;margin-bottom:16px;box-shadow:0 4px 20px rgba(231,76,60,.25)}
+.final-banner h2{font-size:20px;font-weight:900;margin-bottom:6px;letter-spacing:-.3px}
 .final-banner p{font-size:13px;opacity:.9}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border-radius:11px;border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit;transition:all .15s;user-select:none}
-.btn-primary{background:#e74c3c;color:#fff}
-.btn-primary:active{background:#c0392b}
-.btn-secondary{background:#e2e8f0;color:#2d3748}
-.btn-secondary:active{background:#cbd5e0}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border-radius:var(--r-sm);border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit;transition:all var(--ease);user-select:none;letter-spacing:-.1px}
+.btn-primary{background:var(--accent-grad);color:#fff;box-shadow:0 2px 12px rgba(231,76,60,.28)}
+.btn-primary:active{transform:scale(.96);box-shadow:none}
+.btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.btn-secondary:active{transform:scale(.96)}
 .btn-block{width:100%}
 .btn-row{display:flex;gap:9px;margin-top:14px}
 .btn-row .btn{flex:1}
-.btn-ghost{background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.6)}
-.back-btn{display:flex;align-items:center;gap:5px;color:#e74c3c;font-size:14px;font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
-.nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:#fff;border-top:1px solid #e2e8f0;display:flex;padding:10px 14px;gap:10px;z-index:100}
+.btn-ghost{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.5)}
+.btn-ghost:active{background:rgba(255,255,255,.28)}
+.back-btn{display:flex;align-items:center;gap:4px;color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+.back-btn:active{opacity:.65}
+
+/* NAV BAR */
+.nav-bar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:500px;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;padding:10px 14px;gap:10px;z-index:100;
+}
+:root.dark .nav-bar{background:rgba(28,28,30,.88)}
 .nav-bar .btn{flex:1}
-.next-q-wrap{margin-top:14px;text-align:center}
-.result-words{margin-top:16px;max-height:200px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px}
-.result-word-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:12px;border-bottom:1px solid #f7fafc}
-.result-word-row:last-child{border-bottom:none}
-.result-word-row.miss{background:#fff5f5}
-.result-word-row.hit{background:#f0fff4}
 </style>
 </head>
 <body>
@@ -1165,6 +1289,8 @@ const state = {
   quizState: null,
   groupProgress: {},
   finalQuiz: null,
+  kanjiDone: new Set(),
+  darkMode: false,
 };
 
 function loadProgress() {
@@ -1172,14 +1298,15 @@ function loadProgress() {
     const d = localStorage.getItem('jlpt_n5_v3');
     if (d) {
       const saved = JSON.parse(d);
-      // support both old format (plain object) and new format (with nav state)
       if (saved.groupProgress) {
         state.groupProgress = saved.groupProgress;
         if (saved.view) state.view = saved.view;
         if (saved.currentGroup != null) state.currentGroup = saved.currentGroup;
         if (saved.tab) state.tab = saved.tab;
+        if (Array.isArray(saved.kanjiDone)) state.kanjiDone = new Set(saved.kanjiDone);
+        if (saved.darkMode) state.darkMode = true;
       } else {
-        state.groupProgress = saved; // legacy: was just the progress object
+        state.groupProgress = saved;
       }
     }
   } catch(e) {}
@@ -1191,6 +1318,8 @@ function saveProgress() {
       view: state.view,
       currentGroup: state.currentGroup,
       tab: state.tab,
+      kanjiDone: [...state.kanjiDone],
+      darkMode: state.darkMode,
     }));
   } catch(e) {}
 }
@@ -1269,34 +1398,45 @@ function renderHome() {
   const done = completedCount(), total = GROUPS.length;
   const pct = Math.round(done / total * 100);
   const totalWords = GROUPS.reduce((s,g) => s + g.words.length, 0);
+  const totalKanji = state.kanjiDone.size;
   const cards = GROUPS.map((g, i) => {
     const isDone = state.groupProgress[i];
+    const kanjiCount = g.words.filter((_,wi) => state.kanjiDone.has(`${i}-${wi}`)).length;
     return `<div class="group-card${isDone?' done':''}" data-action="open-group" data-idx="${i}">
       <div class="group-card-bar" style="background:${g.color}"></div>
       <span class="group-card-icon">${g.icon}</span>
       <div class="group-card-name">${g.name}</div>
       <div class="group-card-count">${g.words.length} words</div>
-      ${isDone?'<span class="group-card-badge">✅</span>':''}
+      <div class="group-card-meta">
+        ${isDone?'<span class="group-card-badge">✓ Done</span>':''}
+        ${kanjiCount>0?`<span class="group-card-kanji">漢 ${kanjiCount}/${g.words.length}</span>`:''}
+      </div>
     </div>`;
   }).join('');
   const unlocked = done >= Math.ceil(total * 0.4);
   return `
   <div class="header">
     <div class="header-top">
-      <span class="header-title">🎌 JLPT N5 Trainer</span>
-      <span style="font-size:12px;color:#718096;font-weight:600">${pct}%</span>
+      <span class="header-title">🎌 JLPT N5</span>
+      <button class="icon-btn" data-action="toggle-dark" title="Toggle dark mode">${state.darkMode?'☀️':'🌙'}</button>
     </div>
     <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
-    <div class="progress-text">${done} / ${total} groups · ${totalWords} total words</div>
+    <div class="progress-text">
+      <span>${done} / ${total} groups complete</span>
+      <span>${pct}% · 漢 ${totalKanji} studied</span>
+    </div>
   </div>
   <div class="screen animate-in">
-    <div class="section-title">Choose a Group</div>
+    <div class="section-header">
+      <span class="section-title">Groups</span>
+      <span class="section-sub">${totalWords} words total</span>
+    </div>
     <div class="groups-grid">${cards}</div>
-    <div style="margin-top:20px">
-      <div class="final-banner" style="${!unlocked?'opacity:.55':''}">
+    <div style="margin-top:16px">
+      <div class="final-banner" style="${!unlocked?'opacity:.5;pointer-events:none':''}">
         <h2>🏆 Final Review Quiz</h2>
-        <p>${unlocked?'40 questions from ALL groups — test your mastery!':'Complete '+Math.ceil(total*.4)+' groups to unlock'}</p>
-        ${unlocked?`<button class="btn btn-ghost" style="margin-top:12px" data-action="open-final">Start Final Quiz →</button>`:''}
+        <p>${unlocked?'40 questions from all groups — test your mastery!':'Complete '+Math.ceil(total*.4)+' groups to unlock'}</p>
+        ${unlocked?`<button class="btn btn-ghost" style="margin-top:14px" data-action="open-final">Start Final Quiz →</button>`:''}
       </div>
     </div>
   </div>`;
@@ -1305,24 +1445,29 @@ function renderHome() {
 function renderGroup() {
   const gi = state.currentGroup, g = GROUPS[gi];
   const isDone = state.groupProgress[gi];
+  const kanjiCount = g.words.filter((_,wi) => state.kanjiDone.has(`${gi}-${wi}`)).length;
   return `
   <div class="header">
     <div class="header-top">
       <button class="back-btn" data-action="go-home">← Groups</button>
-      <span style="flex:1;text-align:center;font-size:12px;color:#718096;font-weight:600">${gi+1} / ${GROUPS.length}</span>
-      <div style="width:80px"></div>
+      <span style="flex:1;text-align:center;font-size:12px;color:var(--text3);font-weight:600">${gi+1} / ${GROUPS.length}</span>
+      <button class="icon-btn" data-action="toggle-dark">${state.darkMode?'☀️':'🌙'}</button>
     </div>
   </div>
   <div class="screen animate-in">
     <div class="group-hd">
       <div class="group-hd-icon" style="background:${g.color}22">${g.icon}</div>
-      <div>
+      <div style="flex:1;min-width:0">
         <div class="group-hd-name">${g.name}</div>
-        <div class="group-hd-sub">${g.words.length} words${isDone?' · ✅ Completed':''}</div>
+        <div class="group-hd-sub">${g.words.length} words</div>
+        <div class="group-hd-pills">
+          ${isDone?'<span class="pill done-pill">✓ Mastered</span>':''}
+          <span class="pill kanji-pill">漢 ${kanjiCount}/${g.words.length} studied</span>
+        </div>
       </div>
     </div>
     <div class="tip-card">
-      <div class="tip-label">💡 Memory Tip</div>
+      <div class="tip-label">💡 Tip</div>
       ${g.tip}
     </div>
     <div class="tabs">
@@ -1340,9 +1485,11 @@ function renderGroup() {
 function renderFlashcards(gi, g) {
   const cards = g.words.map((w, i) => {
     const key = `${gi}-${i}`, flip = state.flipped.has(key);
+    const kDone = state.kanjiDone.has(`${gi}-${i}`);
     return `<div class="fc${flip?' flipped':''}" data-action="flip" data-key="${key}">
       <div class="fc-inner">
         <div class="fc-front">
+          <button class="kanji-btn${kDone?' kdone':''}" data-action="toggle-kanji" data-gi="${gi}" data-wi="${i}" title="Mark kanji studied">${kDone?'✓':'漢'}</button>
           <div class="fc-kanji">${w[0]}</div>
           <div class="fc-romaji">${w[1]}</div>
           <div class="fc-hint">tap to flip</div>
@@ -1356,12 +1503,16 @@ function renderFlashcards(gi, g) {
   }).join('');
   const allFlip = g.words.every((_,i) => state.flipped.has(`${gi}-${i}`));
   const flippedCount = g.words.filter((_,i) => state.flipped.has(`${gi}-${i}`)).length;
+  const kanjiCount = g.words.filter((_,i) => state.kanjiDone.has(`${gi}-${i}`)).length;
   return `
-    <div style="font-size:12px;color:#718096;margin-bottom:8px;text-align:right">${flippedCount}/${g.words.length} revealed</div>
+    <div class="fc-stats">
+      <span class="revealed-count">${flippedCount}/${g.words.length} revealed</span>
+      <span class="kanji-count" style="color:var(--accent)">漢 ${kanjiCount}/${g.words.length}</span>
+    </div>
     <div class="fc-grid">${cards}</div>
     <div class="fc-controls">
       <button class="btn btn-secondary" style="font-size:13px" data-action="flip-all">${allFlip?'↺ Reset':'👁 Reveal All'}</button>
-      <button class="btn btn-primary" style="font-size:13px" data-action="set-tab" data-tab="quiz">Quiz All ${g.words.length} →</button>
+      <button class="btn btn-primary" style="font-size:13px" data-action="set-tab" data-tab="quiz">Quiz All →</button>
     </div>`;
 }
 
@@ -1369,9 +1520,9 @@ function renderQuiz(gi, g) {
   const qs = state.quizState;
   if (!qs || qs.groupIdx !== gi) {
     return `<div class="quiz-wrap" style="text-align:center">
-      <div style="font-size:48px;margin-bottom:12px">📝</div>
-      <p style="color:#4a5568;margin-bottom:6px;font-size:14px"><strong>Mastery Quiz</strong> — ${g.words.length} words in ${g.name}.</p>
-      <p style="color:#718096;margin-bottom:18px;font-size:13px">Wrong answers come back. Quiz ends only when every word is correct.</p>
+      <div style="font-size:44px;margin-bottom:14px">📝</div>
+      <p style="color:var(--text2);margin-bottom:6px;font-size:14px;font-weight:700">Mastery Quiz</p>
+      <p style="color:var(--text3);margin-bottom:20px;font-size:13px">${g.words.length} words · wrong answers come back until every word is correct.</p>
       <button class="btn btn-primary btn-block" data-action="start-quiz">Start Mastery Quiz</button>
     </div>`;
   }
@@ -1390,7 +1541,7 @@ function renderQuiz(gi, g) {
   return `<div class="quiz-wrap">
     <div class="quiz-meta">
       <span>Round ${qs.roundNum} · ${qs.roundPos+1}/${qs.roundQueue.length}</span>
-      <span>✅ ${qs.masteredIdx.size}/${qs.words.length} mastered</span>
+      <span>✓ ${qs.masteredIdx.size}/${qs.words.length} mastered</span>
     </div>
     <div class="quiz-mini-bar"><div class="quiz-mini-fill" style="width:${masteredPct}%"></div></div>
     <div class="quiz-word">${q.word[0]}</div>
@@ -1402,15 +1553,16 @@ function renderQuiz(gi, g) {
 
 function renderQuizResult(qs, g) {
   const acc = qs.totalAsked ? Math.round(qs.totalCorrect / qs.totalAsked * 100) : 100;
-  const msg = qs.roundNum === 1 ? '🎉 Perfect — first try on every word!' : qs.roundNum === 2 ? '🌟 Excellent — mastered in 2 rounds!' : `👍 Mastered in ${qs.roundNum} rounds!`;
+  const msg = qs.roundNum === 1 ? '🎉 Perfect — first try!' : qs.roundNum === 2 ? '🌟 Mastered in 2 rounds!' : `👍 Mastered in ${qs.roundNum} rounds!`;
   return `<div class="quiz-wrap">
     <div class="quiz-result">
-      <div style="font-size:40px;margin-bottom:6px">🎉</div>
+      <div style="font-size:44px;margin-bottom:8px">🎉</div>
       <div class="result-score">${qs.words.length}/${qs.words.length}</div>
       <div class="result-pct">All words mastered · ${acc}% accuracy</div>
       <div class="result-msg">${msg}</div>
-      <div class="btn-row" style="margin-top:16px">
+      <div class="btn-row">
         <button class="btn btn-secondary" data-action="retry-quiz">↺ Retry</button>
+        <button class="btn btn-primary" data-action="next-group">Next Group →</button>
       </div>
     </div>
   </div>`;
@@ -1421,17 +1573,17 @@ function renderFinalScreen() {
   const hdr = `<div class="header">
     <div class="header-top">
       <button class="back-btn" data-action="go-home">← Back</button>
-      <span style="flex:1;text-align:center;font-weight:800;color:#c0392b">🏆 Final Quiz</span>
-      <div style="width:80px"></div>
+      <span style="flex:1;text-align:center;font-size:15px;font-weight:800;color:var(--accent)">Final Quiz</span>
+      <button class="icon-btn" data-action="toggle-dark">${state.darkMode?'☀️':'🌙'}</button>
     </div>
   </div>`;
   if (!state.finalQuiz) {
     return `${hdr}<div class="screen animate-in">
       <div class="final-banner">
         <h2>🏆 Final Review Quiz</h2>
-        <p>40 questions drawn randomly from all ${GROUPS.length} groups. Good luck!</p>
+        <p>40 questions drawn from all ${GROUPS.length} groups. Good luck!</p>
       </div>
-      <button class="btn btn-primary btn-block" data-action="start-final-now">Start Quiz (40 questions)</button>
+      <button class="btn btn-primary btn-block" data-action="start-final-now">Start Quiz — 40 questions</button>
     </div>`;
   }
   const fq = state.finalQuiz;
@@ -1441,9 +1593,9 @@ function renderFinalScreen() {
     return `${hdr}<div class="screen animate-in">
       <div class="quiz-wrap">
         <div class="quiz-result">
-          <div style="font-size:18px;font-weight:800;margin-bottom:8px">Final Results</div>
+          <div style="font-size:16px;font-weight:800;color:var(--text2);margin-bottom:10px">Final Results</div>
           <div class="result-score">${s}/${t}</div>
-          <div class="result-pct">${p}%</div>
+          <div class="result-pct">${p}% accuracy</div>
           <div class="result-msg">${msg}</div>
           <div class="btn-row">
             <button class="btn btn-secondary" data-action="go-home">🏠 Home</button>
@@ -1468,7 +1620,7 @@ function renderFinalScreen() {
     <div class="quiz-wrap">
       <div class="quiz-meta">
         <span>Q${fq.current+1} / ${fq.questions.length}</span>
-        <span>✅ ${fq.score} &nbsp;❌ ${fq.current - fq.score}</span>
+        <span>✓ ${fq.score} &nbsp;✗ ${fq.current - fq.score}</span>
       </div>
       <div class="quiz-mini-bar"><div class="quiz-mini-fill" style="width:${pct}%"></div></div>
       <div class="quiz-word">${q.word[0]}</div>
@@ -1503,14 +1655,32 @@ function handleClick(e) {
     state.view = 'home'; saveProgress(); render(); scrollTo(0,0);
   } else if (a === 'set-tab') {
     state.tab = e.currentTarget.dataset.tab; saveProgress(); render();
+  } else if (a === 'toggle-dark') {
+    state.darkMode = !state.darkMode;
+    document.documentElement.classList.toggle('dark', state.darkMode);
+    saveProgress(); render();
+  } else if (a === 'toggle-kanji') {
+    e.stopPropagation();
+    const gi2 = +e.currentTarget.dataset.gi, wi2 = +e.currentTarget.dataset.wi;
+    const kkey = `${gi2}-${wi2}`;
+    state.kanjiDone.has(kkey) ? state.kanjiDone.delete(kkey) : state.kanjiDone.add(kkey);
+    const isDoneNow = state.kanjiDone.has(kkey);
+    e.currentTarget.classList.toggle('kdone', isDoneNow);
+    e.currentTarget.textContent = isDoneNow ? '✓' : '漢';
+    saveProgress();
+    const g2 = GROUPS[gi2];
+    const kc = g2.words.filter((_,i) => state.kanjiDone.has(`${gi2}-${i}`)).length;
+    const kEl = document.querySelector('.kanji-count');
+    if (kEl) kEl.textContent = `漢 ${kc}/${g2.words.length}`;
+    const kPill = document.querySelector('.kanji-pill');
+    if (kPill) kPill.textContent = `漢 ${kc}/${g2.words.length} studied`;
   } else if (a === 'flip') {
     const k = e.currentTarget.dataset.key;
     state.flipped.has(k) ? state.flipped.delete(k) : state.flipped.add(k);
     e.currentTarget.classList.toggle('flipped');
-    // Update counters without full re-render
     const gi = state.currentGroup, g = GROUPS[gi];
     const cnt = g.words.filter((_,i) => state.flipped.has(`${gi}-${i}`)).length;
-    const el = document.querySelector('.fc-grid').previousElementSibling;
+    const el = document.querySelector('.revealed-count');
     if (el) el.textContent = `${cnt}/${g.words.length} revealed`;
     const allF = cnt === g.words.length;
     const btn = document.querySelector('[data-action="flip-all"]');
@@ -1585,6 +1755,7 @@ function handleClick(e) {
 // INIT
 // ─────────────────────────────────────────────
 loadProgress();
+if (state.darkMode) document.documentElement.classList.add('dark');
 render();
 </script>
 </body>
