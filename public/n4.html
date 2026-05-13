@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>JLPT N4 Trainer</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh;max-width:500px;margin:0 auto;padding-bottom:80px}
+.header{background:#fff;padding:12px 16px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.header-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.header-title{font-size:18px;font-weight:800;color:#1a5276;flex:1}
+.progress-bar-wrap{background:#e2e8f0;border-radius:999px;height:7px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,#3498db,#2980b9);border-radius:999px;transition:width .4s ease}
+.progress-text{font-size:11px;color:#718096;margin-top:3px;text-align:right}
+.screen{padding:14px}
+.animate-in{animation:slideIn .25s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:16px;font-weight:700;margin-bottom:10px;color:#2d3748}
+.groups-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.group-card{background:#fff;border-radius:14px;padding:14px 12px;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:0 2px 8px rgba(0,0,0,.08);border:2px solid transparent;position:relative;overflow:hidden;user-select:none}
+.group-card:active{transform:scale(.96)}
+.group-card.done{border-color:#68d391}
+.group-card-bar{position:absolute;top:0;left:0;right:0;height:4px;border-radius:14px 14px 0 0}
+.group-card-icon{font-size:26px;margin-bottom:6px;display:block}
+.group-card-name{font-size:12px;font-weight:700;color:#2d3748;margin-bottom:3px;line-height:1.3}
+.group-card-count{font-size:11px;color:#a0aec0}
+.group-card-badge{position:absolute;top:8px;right:8px;font-size:13px}
+.group-hd{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:14px}
+.group-hd-icon{font-size:40px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:18px;flex-shrink:0}
+.group-hd-name{font-size:18px;font-weight:800;color:#2d3748}
+.group-hd-sub{font-size:13px;color:#718096;margin-top:2px}
+.tip-card{background:#ebf5fb;border:1px solid #aed6f1;border-radius:12px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.65;color:#1a5276}
+.tip-label{font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;color:#2980b9}
+.tabs{display:flex;background:#fff;border-radius:12px;padding:4px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.tab{flex:1;padding:9px;text-align:center;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;color:#718096;transition:all .18s;border:none;background:none;font-family:inherit}
+.tab.active{background:#2980b9;color:#fff}
+.fc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fc{perspective:1000px;height:128px;cursor:pointer;user-select:none}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .45s ease}
+.fc.flipped .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center}
+.fc-front{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.fc-back{transform:rotateY(180deg);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.fc-kanji{font-size:24px;font-weight:800;margin-bottom:3px;line-height:1.2}
+.fc-romaji{font-size:11px;color:#718096}
+.fc-meaning{font-size:13px;font-weight:700;line-height:1.4}
+.fc-romaji-back{font-size:10px;opacity:.85;margin-top:3px}
+.fc-hint{font-size:10px;color:#a0aec0;margin-top:5px}
+.fc-controls{margin-top:12px;text-align:center;display:flex;gap:8px;justify-content:center}
+.quiz-wrap{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.quiz-meta{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;color:#718096}
+.quiz-mini-bar{background:#e2e8f0;border-radius:999px;height:5px;overflow:hidden;margin-bottom:14px}
+.quiz-mini-fill{height:100%;background:linear-gradient(90deg,#3498db,#2980b9);border-radius:999px;transition:width .3s}
+.quiz-word{font-size:38px;font-weight:800;text-align:center;margin-bottom:4px;line-height:1.2}
+.quiz-romaji{font-size:13px;text-align:center;color:#718096;margin-bottom:18px}
+.quiz-prompt{font-size:13px;font-weight:600;text-align:center;color:#4a5568;margin-bottom:12px}
+.quiz-choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.qc{padding:13px 10px;border:2px solid #e2e8f0;border-radius:11px;cursor:pointer;font-size:13px;text-align:center;transition:all .15s;background:#fff;font-family:inherit;color:#2d3748;line-height:1.3}
+.qc:hover:not([disabled]){border-color:#2980b9;background:#ebf5fb}
+.qc.correct{border-color:#48bb78!important;background:#f0fff4!important;color:#276749!important}
+.qc.wrong{border-color:#fc8181!important;background:#fff5f5!important;color:#c53030!important}
+.qc[disabled]{cursor:default}
+.quiz-result{text-align:center;padding:16px 0}
+.result-score{font-size:60px;font-weight:900;color:#2980b9}
+.result-pct{font-size:16px;color:#718096;margin-bottom:6px}
+.result-msg{font-size:15px;font-weight:600;color:#2d3748;margin-bottom:20px}
+.final-banner{background:linear-gradient(135deg,#3498db,#2980b9);border-radius:18px;padding:22px;text-align:center;color:#fff;margin-bottom:20px}
+.final-banner h2{font-size:22px;font-weight:900;margin-bottom:6px}
+.final-banner p{font-size:13px;opacity:.9}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border-radius:11px;border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit;transition:all .15s;user-select:none}
+.btn-primary{background:#2980b9;color:#fff}
+.btn-primary:active{background:#1a5276}
+.btn-secondary{background:#e2e8f0;color:#2d3748}
+.btn-secondary:active{background:#cbd5e0}
+.btn-block{width:100%}
+.btn-row{display:flex;gap:9px;margin-top:14px}
+.btn-row .btn{flex:1}
+.btn-ghost{background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.6)}
+.back-btn{display:flex;align-items:center;gap:5px;color:#2980b9;font-size:14px;font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+.nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:#fff;border-top:1px solid #e2e8f0;display:flex;padding:10px 14px;gap:10px;z-index:100}
+.nav-bar .btn{flex:1}
+.next-q-wrap{margin-top:14px;text-align:center}
+.result-words{margin-top:16px;max-height:200px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px}
+.result-word-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:12px;border-bottom:1px solid #f7fafc}
+.result-word-row:last-child{border-bottom:none}
+.result-word-row.miss{background:#fff5f5}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ─────────────────────────────────────────────
+// VOCABULARY — 55 groups, ~720 words (JLPT N4)
+// word format: [kanji/kana, romaji, english]
+// ─────────────────────────────────────────────
+const GROUPS = [
+  /* 01 */ {
+    name:"Family & Relationships",icon:"👨‍👩‍👧",color:"#2980B9",
+    tip:"N4 family vocab introduces in-law and extended family terms. 息子 (musuko=son) and 娘 (musume=daughter) are humble forms for your own children. 恋人 (koibito) is the neutral term for a romantic partner — boyfriend/girlfriend context determines gender.",
+    words:[
+      ["息子","musuko","son"],
+      ["娘","musume","daughter"],
+      ["夫","otto","husband"],
+      ["妻","tsuma","wife"],
+      ["親","oya","parent(s)"],
+      ["兄弟","kyōdai","siblings (brothers)"],
+      ["姉妹","shimai","sisters"],
+      ["孫","mago","grandchild"],
+      ["叔父","oji","uncle"],
+      ["叔母","oba","aunt"],
+      ["親戚","shinseki","relative"],
+      ["夫婦","fūfu","married couple"],
+      ["恋人","koibito","partner / lover"],
+      ["独身","dokushin","single / unmarried"],
+    ]
+  },
+  /* 02 */ {
+    name:"Body Extended",icon:"🫁",color:"#8E44AD",
+    tip:"N4 body words go deeper inside. 骨 (hone=bone), 血 (chi=blood) and 皮膚 (hifu=skin) are medical basics. 指 can mean finger OR toe — add 足の (ashi no) to specify toe.",
+    words:[
+      ["骨","hone","bone"],
+      ["血","chi","blood"],
+      ["皮膚","hifu","skin"],
+      ["胸","mune","chest"],
+      ["腹","hara","belly / stomach"],
+      ["背中","senaka","back (body)"],
+      ["足首","ashikubi","ankle"],
+      ["爪","tsume","nail (finger/toe)"],
+      ["心臓","shinzō","heart"],
+      ["肺","hai","lung(s)"],
+      ["胃","i","stomach (organ)"],
+      ["神経","shinkei","nerve"],
+      ["筋肉","kinniku","muscle"],
+      ["関節","kansetsu","joint"],
+    ]
+  },
+  /* 03 */ {
+    name:"Personality & Character",icon:"🌟",color:"#16A085",
+    tip:"Character adjectives often come in pairs: 真面目 (majime=diligent) vs 不真面目 (fu-majime=lazy), 正直 (shōjiki=honest) vs 不正直. Adding 不 (fu/bu) to a な-adjective usually creates the opposite.",
+    words:[
+      ["性格","seikaku","personality / character"],
+      ["真面目","majime","serious / diligent"],
+      ["正直","shōjiki","honest"],
+      ["親切","shinsetsu","kind"],
+      ["丁寧","teinei","polite / careful"],
+      ["勇気","yūki","courage"],
+      ["我慢","gaman","patience / endurance"],
+      ["素直","sunao","obedient / frank"],
+      ["頑固","ganko","stubborn"],
+      ["積極的","sekkyokuteki","proactive / assertive"],
+      ["消極的","shōkyokuteki","passive / reserved"],
+      ["社交的","shakōteki","sociable"],
+      ["几帳面","kichōmen","neat / meticulous"],
+    ]
+  },
+  /* 04 */ {
+    name:"Emotions & Feelings",icon:"💭",color:"#C0392B",
+    tip:"Many emotion words in N4 are い-adjectives ending in しい: 恥ずかしい (hazukashii=embarrassed), 寂しい (sabishii=lonely), 羨ましい (urayamashii=envious). The しい ending is a hallmark of emotional adjectives in Japanese.",
+    words:[
+      ["安心","anshin","relief / peace of mind"],
+      ["緊張","kinchō","nervousness / tension"],
+      ["恥ずかしい","hazukashii","embarrassing / shy"],
+      ["寂しい","sabishii","lonely"],
+      ["羨ましい","urayamashii","envious"],
+      ["もったいない","mottainai","wasteful / what a waste"],
+      ["懐かしい","natsukashii","nostalgic"],
+      ["悔しい","kuyashii","frustrating / regrettable"],
+      ["恐ろしい","osoroshii","frightening / terrible"],
+      ["困る","komaru","to be troubled / at a loss"],
+      ["驚く","odoroku","to be surprised"],
+      ["後悔","kōkai","regret"],
+      ["満足","manzoku","satisfaction"],
+    ]
+  },
+  /* 05 */ {
+    name:"Home & Housing",icon:"🏠",color:"#1ABC9C",
+    tip:"Japanese housing mixes 和室 (washitsu=Japanese room) and 洋室 (yōshitsu=Western room). 家賃 (yachin=rent) and 引越し (hikkoshi=moving house) are essential rental vocab. The entrance 玄関 is N5; 廊下 (rōka=hallway) and 階段 (kaidan=stairs) are N4.",
+    words:[
+      ["廊下","rōka","hallway / corridor"],
+      ["押し入れ","oshiire","Japanese closet"],
+      ["階段","kaidan","staircase"],
+      ["屋根","yane","roof"],
+      ["壁","kabe","wall"],
+      ["畳","tatami","tatami mat"],
+      ["和室","washitsu","Japanese-style room"],
+      ["洋室","yōshitsu","Western-style room"],
+      ["家賃","yachin","rent"],
+      ["引越し","hikkoshi","moving house"],
+      ["駐車場","chūshajō","parking lot"],
+      ["管理人","kanrinin","building manager"],
+      ["契約","keiyaku","contract"],
+    ]
+  },
+  /* 06 */ {
+    name:"Household Items",icon:"🧹",color:"#2C3E50",
+    tip:"Many household appliance names are katakana loanwords: ストーブ (stove/heater), カーテン (curtain), エアコン. 電池 (denchi=battery) and 電球 (denkyū=light bulb) share the kanji 電 (electricity), making them easy to pair-learn.",
+    words:[
+      ["引き出し","hikidashi","drawer"],
+      ["棚","tana","shelf"],
+      ["掃除機","sōjiki","vacuum cleaner"],
+      ["乾燥機","kansōki","dryer"],
+      ["ストーブ","sutōbu","heater / stove"],
+      ["電球","denkyū","light bulb"],
+      ["カーテン","kāten","curtain"],
+      ["ふとん","futon","futon / bedding"],
+      ["まくら","makura","pillow"],
+      ["ゴミ箱","gomibako","trash can"],
+      ["電池","denchi","battery"],
+      ["工具","kōgu","tool(s)"],
+      ["はさみ","hasami","scissors"],
+    ]
+  },
+  /* 07 */ {
+    name:"Kitchen & Cooking",icon:"🍳",color:"#D35400",
+    tip:"Japanese cooking verbs describe method precisely: 焼く (yaku=grill/bake), 煮る (niru=simmer/boil), 炒める (itameru=stir-fry), 揚げる (ageru=deep-fry), 蒸す (musu=steam). Memorise these five and you can describe almost any dish preparation.",
+    words:[
+      ["料理","ryōri","cooking / dish"],
+      ["食事","shokuji","meal"],
+      ["切る","kiru","to cut"],
+      ["焼く","yaku","to grill / bake"],
+      ["煮る","niru","to boil / simmer"],
+      ["炒める","itameru","to stir-fry"],
+      ["蒸す","musu","to steam"],
+      ["揚げる","ageru","to deep-fry"],
+      ["包丁","hōchō","kitchen knife"],
+      ["フライパン","furaipan","frying pan"],
+      ["鍋","nabe","pot"],
+      ["材料","zairyō","ingredients"],
+      ["レシピ","reshipi","recipe"],
+      ["味","aji","taste / flavor"],
+    ]
+  },
+  /* 08 */ {
+    name:"Condiments & Ingredients",icon:"🧂",color:"#7D6608",
+    tip:"Fermentation is central to Japanese flavour: 醤油 (shōyu=soy sauce) and 味噌 (miso) are both fermented. 出汁 (dashi=broth) is the umami base of most Japanese dishes — learn this kanji pair because dashi appears in countless recipes.",
+    words:[
+      ["醤油","shōyu","soy sauce"],
+      ["味噌","miso","miso paste"],
+      ["砂糖","satō","sugar"],
+      ["酢","su","vinegar"],
+      ["油","abura","oil"],
+      ["バター","batā","butter"],
+      ["小麦粉","komugiko","wheat flour"],
+      ["豆腐","tōfu","tofu"],
+      ["納豆","nattō","natto (fermented soybeans)"],
+      ["出汁","dashi","dashi broth"],
+      ["ソース","sōsu","sauce"],
+      ["マヨネーズ","mayonēzu","mayonnaise"],
+      ["みりん","mirin","sweet cooking sake"],
+    ]
+  },
+  /* 09 */ {
+    name:"Restaurants & Dining",icon:"🍜",color:"#117A65",
+    tip:"定食 (teishoku=set meal) is a core concept: rice + main + miso soup all for a fixed price. 割り勘 (warikan=splitting the bill) is common among friends; 奢る (ogoru=to treat someone) is the opposite. Always say いただきます before eating!",
+    words:[
+      ["注文","chūmon","order"],
+      ["定食","teishoku","set meal"],
+      ["会計","kaikei","bill / check"],
+      ["予約","yoyaku","reservation"],
+      ["禁煙","kin'en","non-smoking"],
+      ["喫煙","kituen","smoking"],
+      ["席","seki","seat"],
+      ["おかわり","okawari","refill / second helping"],
+      ["割り勘","warikan","splitting the bill"],
+      ["出前","demae","food delivery"],
+      ["食べ放題","tabehōdai","all-you-can-eat"],
+      ["持ち帰り","mochikaeri","takeout / to go"],
+    ]
+  },
+  /* 10 */ {
+    name:"Shopping Extended",icon:"🛍️",color:"#1F618D",
+    tip:"消費税 (shōhizei=consumption tax) is added at checkout in Japan — currently 10%. 領収書 (ryōshūsho=receipt) is needed for expense claims. 返品 (henpin=return) and 交換 (kōkan=exchange) are your rights as a consumer.",
+    words:[
+      ["割引","waribiki","discount"],
+      ["セール","sēru","sale"],
+      ["定価","teika","regular price"],
+      ["消費税","shōhizei","consumption tax"],
+      ["領収書","ryōshūsho","receipt (formal)"],
+      ["返品","henpin","product return"],
+      ["交換","kōkan","exchange"],
+      ["商品","shōhin","product / merchandise"],
+      ["在庫","zaiko","stock / inventory"],
+      ["売り場","uriba","sales floor / department"],
+      ["包む","tsutsumu","to wrap"],
+      ["試着","shichaku","trying on clothes"],
+      ["品質","hinshitsu","quality"],
+    ]
+  },
+  /* 11 */ {
+    name:"Money & Finance",icon:"💰",color:"#1E8449",
+    tip:"貯金 (chokin=savings) contains 貯 (to store) + 金 (money). 口座 (kōza=account) is used at the bank. 節約 (setsuyaku=economising) is a virtue in Japanese culture — the concept of もったいない (waste not) is deeply cultural.",
+    words:[
+      ["貯金","chokin","savings"],
+      ["口座","kōza","bank account"],
+      ["振り込み","furikomi","bank transfer"],
+      ["両替","ryōgae","currency exchange"],
+      ["税金","zeikin","tax"],
+      ["保険","hoken","insurance"],
+      ["借金","shakkin","debt"],
+      ["給料","kyūryō","salary"],
+      ["家計","kakei","household budget"],
+      ["費用","hiyō","cost / expense"],
+      ["節約","setsuyaku","economizing / saving"],
+      ["値段","nedan","price"],
+    ]
+  },
+  /* 12 */ {
+    name:"Transportation Extended",icon:"🚆",color:"#2471A3",
+    tip:"Japan's train system uses key terms: 急行 (kyūkō=express), 特急 (tokkyū=limited express), 各駅停車 (kakueki teisha=local). 乗り換え (norikae=transfer) is crucial when navigating. 定期券 (teikiken=commuter pass) is bought monthly.",
+    words:[
+      ["急行","kyūkō","express (train)"],
+      ["特急","tokkyū","limited express"],
+      ["各駅停車","kakueki teisha","local train (all stops)"],
+      ["乗り換え","norikae","transfer / connection"],
+      ["時刻表","jikokuhyō","timetable"],
+      ["定期券","teikiken","commuter pass"],
+      ["改札","kaisatsu","ticket gate"],
+      ["ホーム","hōmu","platform"],
+      ["出発","shuppatsu","departure"],
+      ["到着","tōchaku","arrival"],
+      ["遅延","chien","delay"],
+      ["渋滞","jūtai","traffic jam"],
+      ["信号","shingō","traffic light"],
+      ["駐車","chūsha","parking"],
+    ]
+  },
+  /* 13 */ {
+    name:"Travel & Tourism",icon:"✈️",color:"#6C3483",
+    tip:"観光 (kankō=sightseeing) is built from 観 (to observe) + 光 (light/scenery). 名所 (meisho=famous place) combines 名 (famous/name) + 所 (place). When travelling, you'll need パスポート and 予約 (yoyaku=reservation) — always book in advance in Japan!",
+    words:[
+      ["観光","kankō","sightseeing"],
+      ["名所","meisho","famous place / attraction"],
+      ["チェックイン","chekkuin","check-in"],
+      ["チェックアウト","chekkuauto","check-out"],
+      ["パスポート","pasupōto","passport"],
+      ["ビザ","biza","visa"],
+      ["海外","kaigai","overseas / abroad"],
+      ["国内","kokunai","domestic / within Japan"],
+      ["予約","yoyaku","reservation"],
+      ["ツアー","tsuā","tour"],
+      ["旅館","ryokan","traditional Japanese inn"],
+      ["温泉","onsen","hot spring"],
+      ["観光地","kankōchi","tourist area"],
+    ]
+  },
+  /* 14 */ {
+    name:"Weather Extended",icon:"⛈️",color:"#1A5276",
+    tip:"梅雨 (tsuyu=rainy season) is written with 梅 (plum) + 雨 (rain) — plum rain, because it falls during plum season (June). 台風 (taifū=typhoon) is Japan's seasonal threat. 湿度 (shitsudo=humidity) is why Japanese summers feel so intense.",
+    words:[
+      ["梅雨","tsuyu","rainy season"],
+      ["台風","taifū","typhoon"],
+      ["雷","kaminari","thunder / lightning"],
+      ["霧","kiri","fog"],
+      ["霜","shimo","frost"],
+      ["洪水","kōzui","flood"],
+      ["湿度","shitsudo","humidity"],
+      ["気温","kion","air temperature"],
+      ["天気予報","tenkiyohō","weather forecast"],
+      ["嵐","arashi","storm"],
+      ["日差し","hizashi","sunlight / sunshine"],
+      ["寒波","kanpa","cold wave"],
+      ["晴れ間","harema","sunny break / clear spell"],
+    ]
+  },
+  /* 15 */ {
+    name:"Nature & Landscape",icon:"🌿",color:"#27AE60",
+    tip:"Many nature kanji appear in place names: 松 (matsu=pine) in 松山, 竹 (take=bamboo) in 竹田, 梅 (ume=plum) in 梅田. Learning these kanji helps you decode Japanese geography. 地震 (jishin=earthquake) uses 地 (earth) + 震 (shake).",
+    words:[
+      ["梅","ume","plum (tree/blossom)"],
+      ["松","matsu","pine tree"],
+      ["竹","take","bamboo"],
+      ["枝","eda","branch"],
+      ["葉","ha","leaf"],
+      ["種","tane","seed"],
+      ["根","ne","root"],
+      ["岩","iwa","rock / boulder"],
+      ["砂","suna","sand"],
+      ["泥","doro","mud"],
+      ["地震","jishin","earthquake"],
+      ["火山","kazan","volcano"],
+      ["滝","taki","waterfall"],
+      ["森林","shinrin","forest / woods"],
+    ]
+  },
+  /* 16 */ {
+    name:"Animals Extended",icon:"🐆",color:"#784212",
+    tip:"Large wild animals use 頭 (tō) as their counter: 象一頭 (zō ittō=one elephant). Small animals use 匹 (hiki): ウサギ一匹. Birds use 羽 (wa): ハト一羽. The counter changes based on animal size — a useful N4 grammar point!",
+    words:[
+      ["象","zō","elephant"],
+      ["虎","tora","tiger"],
+      ["熊","kuma","bear"],
+      ["鹿","shika","deer"],
+      ["猿","saru","monkey"],
+      ["ウサギ","usagi","rabbit"],
+      ["ハト","hato","pigeon / dove"],
+      ["カラス","karasu","crow"],
+      ["鯉","koi","carp"],
+      ["エビ","ebi","shrimp / prawn"],
+      ["カニ","kani","crab"],
+      ["蛇","hebi","snake"],
+      ["亀","kame","turtle / tortoise"],
+    ]
+  },
+  /* 17 */ {
+    name:"Plants & Garden",icon:"🌸",color:"#76448A",
+    tip:"花びら (hanabira=petal) combines 花 (flower) + びら (flat piece). 芽 (me=bud/sprout) is the same kanji read differently in 芽生え (mebare=germination). Japanese gardens 庭園 emphasise asymmetry and natural forms — very different from formal Western gardens.",
+    words:[
+      ["花びら","hanabira","petal"],
+      ["芽","me","bud / sprout"],
+      ["実","mi","fruit / berry"],
+      ["幹","miki","trunk (of tree)"],
+      ["草原","sōgen","grassland / meadow"],
+      ["砂漠","sabaku","desert"],
+      ["海岸","kaigan","coast / beach"],
+      ["山頂","sanchō","mountain top / summit"],
+      ["池","ike","pond"],
+      ["湖","mizuumi","lake"],
+      ["川岸","kawagishi","riverbank"],
+      ["丘","oka","hill"],
+    ]
+  },
+  /* 18 */ {
+    name:"Places & Buildings",icon:"🏛️",color:"#154360",
+    tip:"Learn the suffix 館 (kan=hall/building): 美術館 (bijutsukan=art museum), 博物館 (hakubutsukan=natural history museum), 体育館 (taiikukan=gymnasium), 図書館 (toshokan=library). Spot 館 and you know it's a public building.",
+    words:[
+      ["美術館","bijutsukan","art museum"],
+      ["博物館","hakubutsukan","museum"],
+      ["体育館","taiikukan","gymnasium"],
+      ["警察署","keisatsusho","police station"],
+      ["消防署","shōbōsho","fire station"],
+      ["区役所","kuyakusho","ward office"],
+      ["市役所","shiyakusho","city hall"],
+      ["大使館","taishikan","embassy"],
+      ["薬局","yakkyoku","pharmacy / drugstore"],
+      ["神社","jinja","Shinto shrine"],
+      ["お寺","otera","Buddhist temple"],
+      ["教会","kyōkai","church"],
+      ["工場","kōjō","factory"],
+      ["農場","nōjō","farm"],
+    ]
+  },
+  /* 19 */ {
+    name:"Directions & Navigation",icon:"🗺️",color:"#117864",
+    tip:"交差点 (kōsaten=intersection) is where you 曲がる (magaru=turn). 坂 (saka=slope) is common in hilly Japanese cities. 向かい (mukai=opposite side) is more natural than saying 反対側 (hantaigawa) in everyday directions. Ask: 〜はどこですか?",
+    words:[
+      ["角","kado","corner (of street)"],
+      ["交差点","kōsaten","intersection"],
+      ["坂","saka","slope / hill"],
+      ["橋","hashi","bridge"],
+      ["地下","chika","underground"],
+      ["地上","chijō","above ground"],
+      ["向かい","mukai","opposite side"],
+      ["近所","kinjo","neighborhood"],
+      ["道路","dōro","road"],
+      ["通り","tōri","street / avenue"],
+      ["曲がる","magaru","to turn"],
+      ["まっすぐ","massugu","straight ahead"],
+      ["渡る","wataru","to cross"],
+    ]
+  },
+  /* 20 */ {
+    name:"School & Education",icon:"🎓",color:"#1F618D",
+    tip:"入学 (nyūgaku=entering school) and 卒業 (sotsugyō=graduation) mark the big transitions. 受験 (juken=taking an exam) is a major life event in Japan — 受験戦争 (exam war) describes the intense competition. 合格 (gōkaku=pass) is every student's goal!",
+    words:[
+      ["入学","nyūgaku","school enrollment / starting school"],
+      ["卒業","sotsugyō","graduation"],
+      ["受験","juken","taking an entrance exam"],
+      ["合格","gōkaku","passing (an exam)"],
+      ["不合格","fugōkaku","failing (an exam)"],
+      ["転校","tenkō","transferring schools"],
+      ["留学","ryūgaku","studying abroad"],
+      ["授業料","jugyōryō","tuition fee"],
+      ["成績","seiseki","grades / results"],
+      ["予習","yoshū","preparation / pre-study"],
+      ["復習","fukushū","review / revision"],
+      ["時間割","jikanwari","class timetable"],
+      ["教科書","kyōkasho","textbook"],
+      ["宿題","shukudai","homework"],
+    ]
+  },
+  /* 21 */ {
+    name:"University & Research",icon:"🔬",color:"#6E2F8B",
+    tip:"大学院 (daigakuin=graduate school) adds 院 (institution) to 大学. 専攻 (senkō=major) is what you study in depth. 論文 (ronbun=thesis) is required at graduation. 奨学金 (shōgakukin=scholarship) contains 金 (money) — very literally 'study money'.",
+    words:[
+      ["大学院","daigakuin","graduate school"],
+      ["学部","gakubu","faculty / undergraduate department"],
+      ["専攻","senkō","major / specialization"],
+      ["研究","kenkyū","research"],
+      ["実験","jikken","experiment"],
+      ["論文","ronbun","thesis / paper"],
+      ["発表","happyō","presentation / announcement"],
+      ["教授","kyōju","professor"],
+      ["講義","kōgi","lecture"],
+      ["ゼミ","zemi","seminar"],
+      ["博士","hakase","doctorate / PhD"],
+      ["奨学金","shōgakukin","scholarship"],
+    ]
+  },
+  /* 22 */ {
+    name:"Work & Career",icon:"💼",color:"#1A5276",
+    tip:"Japanese workplace vocab is rich with hierarchy: 上司 (jōshi=boss), 部下 (buka=subordinate), 同僚 (dōryō=colleague). 残業 (zangyō=overtime) is culturally significant — Japan's long-hours culture is being actively reformed. 締め切り (shimekiri=deadline) is every worker's reality.",
+    words:[
+      ["就職","shūshoku","getting a job"],
+      ["退職","taishoku","retirement / resignation"],
+      ["転職","tenshoku","changing jobs"],
+      ["昇進","shōshin","promotion"],
+      ["残業","zangyō","overtime work"],
+      ["出張","shutchō","business trip"],
+      ["会議","kaigi","meeting"],
+      ["報告","hōkoku","report"],
+      ["上司","jōshi","superior / boss"],
+      ["部下","buka","subordinate"],
+      ["同僚","dōryō","colleague"],
+      ["有給","yūkyū","paid leave"],
+      ["締め切り","shimekiri","deadline"],
+      ["取引先","torihikisaki","business partner / client"],
+    ]
+  },
+  /* 23 */ {
+    name:"Business & Company",icon:"🏢",color:"#145A32",
+    tip:"Company titles follow a strict hierarchy: 社長 (shachō=president) > 部長 (buchō=dept. head) > 課長 (kachō=section chief) > 係長 (kakarichō=team lead) > 社員 (shain=staff). 正社員 (seishain=full-time employee) has more job security than アルバイト (part-time).",
+    words:[
+      ["社長","shachō","company president"],
+      ["部長","buchō","department head"],
+      ["課長","kachō","section chief"],
+      ["社員","shain","company employee"],
+      ["正社員","seishain","full-time employee"],
+      ["パート","pāto","part-time worker"],
+      ["派遣","haken","temp / dispatched worker"],
+      ["面接","mensetsu","interview"],
+      ["履歴書","rirekisho","resume / CV"],
+      ["採用","saiyō","hiring / recruitment"],
+      ["解雇","kaiko","dismissal / firing"],
+      ["給与","kyūyo","wages / pay"],
+      ["経営","keiei","management / running a business"],
+    ]
+  },
+  /* 24 */ {
+    name:"Health & Medical",icon:"🏥",color:"#922B21",
+    tip:"Japanese medical vocab: 診察 (shinsatsu=examination), 処方箋 (shohōsen=prescription), 注射 (chūsha=injection). 救急車 (kyūkyūsha=ambulance) literally means 'emergency car'. 入院 (nyūin=hospitalization) and 退院 (taiin=discharge) are opposites sharing 院.",
+    words:[
+      ["診察","shinsatsu","medical examination"],
+      ["診断","shindan","diagnosis"],
+      ["処方箋","shohōsen","prescription"],
+      ["手術","shujutsu","surgery / operation"],
+      ["入院","nyūin","hospitalization"],
+      ["退院","taiin","discharge from hospital"],
+      ["注射","chūsha","injection"],
+      ["検査","kensa","medical test / examination"],
+      ["血圧","ketsuatsu","blood pressure"],
+      ["体温","taion","body temperature"],
+      ["症状","shōjō","symptom"],
+      ["回復","kaifuku","recovery"],
+      ["救急車","kyūkyūsha","ambulance"],
+      ["アレルギー","arerugī","allergy"],
+    ]
+  },
+  /* 25 */ {
+    name:"Sports & Exercise",icon:"⚽",color:"#1F618D",
+    tip:"試合 (shiai=match/game) is different from ゲーム (game in the casual sense). 応援 (ōen=cheering/support) is a cultural institution — Japanese sports events have organised cheering sections. 引き分け (hikiwake=draw/tie) happens when neither side wins.",
+    words:[
+      ["試合","shiai","match / game"],
+      ["練習","renshū","practice / training"],
+      ["選手","senshu","athlete / player"],
+      ["監督","kantoku","coach / director"],
+      ["応援","ōen","cheering / support"],
+      ["勝つ","katsu","to win"],
+      ["負ける","makeru","to lose"],
+      ["引き分け","hikiwake","draw / tie"],
+      ["記録","kiroku","record"],
+      ["競争","kyōsō","competition"],
+      ["運動","undō","exercise / movement"],
+      ["体力","tairyoku","physical strength / stamina"],
+      ["審判","shinpan","referee / umpire"],
+    ]
+  },
+  /* 26 */ {
+    name:"Hobbies & Entertainment",icon:"🎨",color:"#7D6608",
+    tip:"趣味 (shumi=hobby) is one of the first questions Japanese people ask. 登山 (tozan=mountain climbing) is a popular Japanese pastime — Mt Fuji alone gets 200,000 climbers a year. 釣り (tsuri=fishing) and 陶芸 (tōgei=pottery) are classic 趣味 answers.",
+    words:[
+      ["趣味","shumi","hobby"],
+      ["キャンプ","kyanpu","camping"],
+      ["登山","tozan","mountain climbing"],
+      ["釣り","tsuri","fishing"],
+      ["陶芸","tōgei","pottery"],
+      ["将棋","shōgi","shogi (Japanese chess)"],
+      ["囲碁","igo","go (board game)"],
+      ["手芸","shugei","handicraft / needlework"],
+      ["ハイキング","haikingu","hiking"],
+      ["ダンス","dansu","dance"],
+      ["絵を描く","e wo kaku","to draw / paint"],
+      ["散歩","sanpo","walk / stroll"],
+      ["観劇","kangeki","watching a play"],
+      ["コレクション","korekushon","collection / collecting"],
+    ]
+  },
+  /* 27 */ {
+    name:"Arts & Traditional Culture",icon:"🎭",color:"#512E5F",
+    tip:"日本の伝統文化 is rich: 茶道 (sadō=tea ceremony) and 華道 (kadō=flower arrangement) both end in 道 (dō=way/path) — a sign of a disciplined art form. 歌舞伎 (kabuki) literally means song-dance-skill. 書道 (shodō=calligraphy) is practiced in schools.",
+    words:[
+      ["芸術","geijutsu","art"],
+      ["文化","bunka","culture"],
+      ["伝統","dentō","tradition"],
+      ["歌舞伎","kabuki","kabuki theatre"],
+      ["茶道","sadō","tea ceremony"],
+      ["華道","kadō","flower arrangement"],
+      ["武道","budō","martial arts"],
+      ["相撲","sumō","sumo wrestling"],
+      ["浮世絵","ukiyo-e","ukiyo-e woodblock prints"],
+      ["俳句","haiku","haiku poetry"],
+      ["落語","rakugo","comic storytelling"],
+      ["書道","shodō","calligraphy"],
+      ["能","nō","Noh theatre"],
+    ]
+  },
+  /* 28 */ {
+    name:"Media & Technology",icon:"📱",color:"#1A5276",
+    tip:"雑誌 (zasshi=magazine) uses the kanji 誌 (written record). スマートフォン is often shortened to スマホ in everyday speech. 更新 (kōshin=update) also means to renew a contract or licence — a versatile word. 充電 (jūden=charging) is something everyone does daily.",
+    words:[
+      ["雑誌","zasshi","magazine"],
+      ["インターネット","intānetto","internet"],
+      ["スマートフォン","sumātofon","smartphone"],
+      ["メール","mēru","email"],
+      ["SNS","esu-enu-esu","social media"],
+      ["アプリ","apuri","app"],
+      ["動画","dōga","video / moving image"],
+      ["電子書籍","denshishoseki","e-book"],
+      ["充電","jūden","charging (device)"],
+      ["更新","kōshin","update / renewal"],
+      ["ダウンロード","daunrōdo","download"],
+      ["パスワード","pasuwādo","password"],
+      ["検索","kensaku","search (internet)"],
+    ]
+  },
+  /* 29 */ {
+    name:"Communication",icon:"💬",color:"#148F77",
+    tip:"連絡 (renraku=contact/communication) is a broad word: phone, email, text — any form of reaching out. 確認 (kakunin=confirmation) is used constantly in Japanese business. 伝える (tsutaeru=to convey/tell) is the transitive partner of 伝わる (to be conveyed/understood).",
+    words:[
+      ["連絡","renraku","contact / communication"],
+      ["留守番電話","rusuban denwa","voicemail"],
+      ["返事","henji","reply / response"],
+      ["相談","sōdan","consultation / discussion"],
+      ["謝る","ayamaru","to apologize"],
+      ["断る","kotowaru","to refuse / decline"],
+      ["お礼","orei","thanks / gratitude"],
+      ["伝える","tsutaeru","to convey / tell"],
+      ["知らせる","shiraseru","to notify / inform"],
+      ["確認","kakunin","confirmation / check"],
+      ["説明","setsumei","explanation"],
+      ["紹介","shōkai","introduction"],
+      ["報告","hōkoku","report / notification"],
+    ]
+  },
+  /* 30 */ {
+    name:"Social Events",icon:"🎉",color:"#784212",
+    tip:"Japanese party vocabulary follows a pattern: 〜会 (kai=meeting/gathering). 忘年会 (bōnenkai=year-end party) literally 'forget-the-year party', 新年会 (shinnenkai=new-year party), 歓迎会 (kangei-kai=welcome party), 送別会 (sōbetsukai=farewell party). Learn 〜会 and you can form them all.",
+    words:[
+      ["結婚式","kekkonshiki","wedding ceremony"],
+      ["葬式","sōshiki","funeral"],
+      ["忘年会","bōnenkai","year-end party"],
+      ["新年会","shinnenkai","new year party"],
+      ["歓迎会","kangei-kai","welcome party"],
+      ["送別会","sōbetsukai","farewell party"],
+      ["記念日","kinenbi","anniversary"],
+      ["お祝い","oiwai","celebration"],
+      ["花束","hanataba","bouquet"],
+      ["招待","shōtai","invitation"],
+      ["出席","shusseki","attendance"],
+      ["欠席","kesseki","absence"],
+      ["スピーチ","supīchi","speech"],
+    ]
+  },
+  /* 31 */ {
+    name:"Seasonal Events",icon:"🎋",color:"#1D6A4C",
+    tip:"Japan's calendar is dense with events: 節分 (setsubun=bean-throwing, Feb 3) drives away evil; 七夕 (tanabata=star festival, July 7) celebrates star lovers meeting; お盆 (obon=ancestral spirit festival, Aug) brings families home. 初詣 (hatsumōde=first shrine visit) happens on Jan 1.",
+    words:[
+      ["初詣","hatsumōde","first shrine visit of new year"],
+      ["節分","setsubun","bean-throwing festival (Feb 3)"],
+      ["ひな祭り","hinamatsuri","doll festival (Mar 3)"],
+      ["花見","hanami","cherry blossom viewing"],
+      ["お盆","obon","Obon ancestral festival"],
+      ["七夕","tanabata","star festival (July 7)"],
+      ["運動会","undōkai","sports day"],
+      ["文化祭","bunkasai","school cultural festival"],
+      ["卒業式","sotsugyōshiki","graduation ceremony"],
+      ["入学式","nyūgakushiki","entrance ceremony"],
+      ["大晦日","ōmisoka","New Year's Eve"],
+      ["バレンタイン","barentain","Valentine's Day"],
+      ["クリスマス","kurisumasu","Christmas"],
+    ]
+  },
+  /* 32 */ {
+    name:"Society & Community",icon:"🌍",color:"#2C3E50",
+    tip:"社会 (shakai=society) contains 社 (company/shrine) + 会 (meeting). 地域 (chiiki=region/area) is used for local community. 権利 (kenri=rights) and 義務 (gimu=duties) are legal/civic terms. ボランティア is key for community engagement.",
+    words:[
+      ["社会","shakai","society"],
+      ["地域","chiiki","region / local area"],
+      ["ボランティア","borantia","volunteer"],
+      ["環境","kankyō","environment"],
+      ["政治","seiji","politics"],
+      ["経済","keizai","economy"],
+      ["法律","hōritsu","law"],
+      ["規則","kisoku","rule / regulation"],
+      ["権利","kenri","right (legal)"],
+      ["義務","gimu","duty / obligation"],
+      ["平等","byōdō","equality"],
+      ["差別","sabetsu","discrimination"],
+    ]
+  },
+  /* 33 */ {
+    name:"Abstract Nouns",icon:"💡",color:"#2E4057",
+    tip:"Abstract N4 nouns often pair with する to become verbs: 経験する (to experience), 理解する (to understand), 判断する (to judge). 可能性 (kanōsei=possibility) breaks into 可能 (possible) + 性 (nature/quality) — the suffix 性 makes abstract nouns from adjectives.",
+    words:[
+      ["意味","imi","meaning"],
+      ["理由","riyū","reason"],
+      ["目的","mokuteki","purpose / goal"],
+      ["目標","mokuhyō","target / objective"],
+      ["計画","keikaku","plan"],
+      ["方法","hōhō","method / way"],
+      ["結果","kekka","result"],
+      ["影響","eikyō","influence / effect"],
+      ["経験","keiken","experience"],
+      ["知識","chishiki","knowledge"],
+      ["技術","gijutsu","technology / skill"],
+      ["能力","nōryoku","ability / capability"],
+      ["可能性","kanōsei","possibility"],
+    ]
+  },
+  /* 34 */ {
+    name:"Verbs — Transitive/Intransitive 1",icon:"↔️",color:"#154360",
+    tip:"N4 heavily tests transitive (他動詞) vs intransitive (自動詞) verb pairs. Transitive takes an object (を); intransitive does not. Pattern: 集める (atsumeru=collect IT) vs 集まる (atsumaru=IT gathers). The transitive form often ends in 〜える/〜す; intransitive in 〜る/〜る.",
+    words:[
+      ["集める","atsumeru","to collect / gather (tr)"],
+      ["集まる","atsumaru","to gather / come together (intr)"],
+      ["変える","kaeru","to change something (tr)"],
+      ["変わる","kawaru","to change / alter (intr)"],
+      ["起こす","okosu","to wake / cause (tr)"],
+      ["起きる","okiru","to get up / occur (intr)"],
+      ["決める","kimeru","to decide (tr)"],
+      ["決まる","kimaru","to be decided (intr)"],
+      ["続ける","tsuzukeru","to continue (tr)"],
+      ["続く","tsuzuku","to continue / go on (intr)"],
+      ["増やす","fuyasu","to increase (tr)"],
+      ["増える","fueru","to increase / grow (intr)"],
+    ]
+  },
+  /* 35 */ {
+    name:"Verbs — Transitive/Intransitive 2",icon:"🔄",color:"#1C638E",
+    tip:"More essential pairs: 落とす (oTosu=drop IT) vs 落ちる (ochiru=IT falls). 壊す (kowasu=break IT) vs 壊れる (kowareru=IT breaks). Intransitive verbs with 〜れる often describe things happening spontaneously or by themselves — a key N4 grammar concept.",
+    words:[
+      ["落とす","otosu","to drop (tr)"],
+      ["落ちる","ochiru","to fall / drop (intr)"],
+      ["開ける","akeru","to open (tr)"],
+      ["開く","aku","to open / become open (intr)"],
+      ["閉める","shimeru","to close (tr)"],
+      ["閉まる","shimaru","to close / shut (intr)"],
+      ["壊す","kowasu","to break / destroy (tr)"],
+      ["壊れる","kowareru","to break / get broken (intr)"],
+      ["出す","dasu","to take out / submit (tr)"],
+      ["出る","deru","to go out / exit (intr)"],
+      ["入れる","ireru","to put in (tr)"],
+      ["入る","hairu","to enter / go in (intr)"],
+    ]
+  },
+  /* 36 */ {
+    name:"Verbs — Daily Actions",icon:"🏃",color:"#117A65",
+    tip:"片付ける (katazukeru=to tidy up) is essential household vocab. 並ぶ (narabu=to line up) vs 並べる (naraberu=to arrange/line things up) — another transitive/intransitive pair. 頼む (tanomu=to ask/request) is more direct than お願いする which is more polite.",
+    words:[
+      ["迎える","mukaeru","to welcome / go to meet"],
+      ["包む","tsutsumu","to wrap"],
+      ["並ぶ","narabu","to line up / queue (intr)"],
+      ["並べる","naraberu","to arrange / line up (tr)"],
+      ["配る","kubaru","to distribute / hand out"],
+      ["運ぶ","hakobu","to carry / transport"],
+      ["片付ける","katazukeru","to tidy up / put away"],
+      ["直す","naosu","to fix / correct"],
+      ["頼む","tanomu","to ask / request"],
+      ["断る","kotowaru","to refuse / decline"],
+      ["比べる","kuraberu","to compare"],
+      ["確かめる","tashikameru","to confirm / make sure"],
+      ["見つける","mitsukeru","to find / discover"],
+      ["集める","atsumeru","to collect / gather"],
+    ]
+  },
+  /* 37 */ {
+    name:"Verbs — Social Actions",icon:"🤝",color:"#6C3483",
+    tip:"Many N4 social verbs are する-verbs built on nouns: 相談する (sōdan suru=to consult), 報告する (hōkoku suru=to report), 参加する (sanka suru=to participate). The pattern noun + する is extremely productive — learn the noun and you get the verb free!",
+    words:[
+      ["謝る","ayamaru","to apologize"],
+      ["約束する","yakusoku suru","to promise / make an appointment"],
+      ["相談する","sōdan suru","to consult / discuss"],
+      ["説明する","setsumei suru","to explain"],
+      ["報告する","hōkoku suru","to report"],
+      ["紹介する","shōkai suru","to introduce"],
+      ["連絡する","renraku suru","to contact / get in touch"],
+      ["誘う","sasou","to invite / suggest"],
+      ["参加する","sanka suru","to participate"],
+      ["協力する","kyōryoku suru","to cooperate"],
+      ["応援する","ōen suru","to cheer / support"],
+      ["賛成する","sansei suru","to agree / approve"],
+      ["反対する","hantai suru","to oppose"],
+      ["交流する","kōryū suru","to exchange / interact"],
+    ]
+  },
+  /* 38 */ {
+    name:"Verbs — Thinking & Feeling",icon:"🧠",color:"#1A252F",
+    tip:"気づく (kizuku=to notice) uses 気 (spirit/feeling) + づく (to arrive at). 悩む (nayamu=to worry/agonize) describes a deeper, longer-term worry than 心配する. 後悔する (kōkai suru=to regret) is for things already done — a feeling all students know after an exam!",
+    words:[
+      ["気づく","kizuku","to notice / become aware"],
+      ["理解する","rikai suru","to understand"],
+      ["悩む","nayamu","to worry / agonize"],
+      ["信じる","shinjiru","to believe / trust"],
+      ["疑う","utagau","to doubt / suspect"],
+      ["判断する","handan suru","to judge / decide"],
+      ["期待する","kitai suru","to expect / hope for"],
+      ["後悔する","kōkai suru","to regret"],
+      ["満足する","manzoku suru","to be satisfied"],
+      ["感動する","kandō suru","to be moved / touched"],
+      ["尊敬する","sonkei suru","to respect / admire"],
+      ["心配する","shinpai suru","to worry"],
+      ["喜ぶ","yorokobu","to be pleased / rejoice"],
+    ]
+  },
+  /* 39 */ {
+    name:"Verbs — Physical State & Change",icon:"💪",color:"#922B21",
+    tip:"太る (futoru=to gain weight) and 痩せる (yaseru=to lose weight) are body change verbs. 治る (naoru=to recover/heal) is intransitive — the body heals itself; 治す (naosu=to cure) is transitive — you cure something. 慣れる (nareru=to get used to) takes に: 〜に慣れる.",
+    words:[
+      ["太る","futoru","to gain weight"],
+      ["痩せる","yaseru","to lose weight"],
+      ["怪我をする","kega wo suru","to get injured"],
+      ["治る","naoru","to recover / heal (intr)"],
+      ["緊張する","kinchō suru","to be nervous"],
+      ["震える","furueru","to tremble / shiver"],
+      ["転ぶ","korobu","to fall down / trip"],
+      ["倒れる","taoreru","to collapse / fall over"],
+      ["慣れる","nareru","to get used to"],
+      ["疲れる","tsukareru","to get tired"],
+      ["汗をかく","ase wo kaku","to sweat"],
+      ["眠れない","nemurenai","unable to sleep"],
+    ]
+  },
+  /* 40 */ {
+    name:"Verbs — Movement",icon:"🏃‍♂️",color:"#1D6A4C",
+    tip:"逃げる (nigeru=to flee) and 追いかける (oikakeru=to chase) often appear together. 進む (susumu=to advance) vs 戻る (modoru=to return) — opposite directions. 引っ越す (hikkōsu=to move house) is one of the first N4 life events you'll need to describe.",
+    words:[
+      ["登る","noboru","to climb"],
+      ["降りる","oriru","to get off / descend"],
+      ["渡る","wataru","to cross"],
+      ["進む","susumu","to advance / proceed"],
+      ["戻る","modoru","to return / go back"],
+      ["追いかける","oikakeru","to chase"],
+      ["逃げる","nigeru","to flee / escape"],
+      ["引っ越す","hikkōsu","to move house"],
+      ["向かう","mukau","to head toward"],
+      ["近づく","chikazuku","to approach / draw near"],
+      ["離れる","hanareru","to leave / move away from"],
+      ["通り過ぎる","tōrisugiru","to pass by"],
+      ["乗り換える","norikaeru","to transfer (transport)"],
+      ["迷う","mayou","to get lost / be at a loss"],
+    ]
+  },
+  /* 41 */ {
+    name:"Verbs — Giving & Receiving",icon:"🎁",color:"#7D6608",
+    tip:"Japanese has a complex giving/receiving system based on the social direction of the gift. あげる: I give to others. くれる: others give to me/in-group. もらう: I receive. Honorific forms: 差し上げる (humble giving), いただく (humble receiving), くださる (respectful giving). This system reflects Japan's group-consciousness.",
+    words:[
+      ["あげる","ageru","to give (to others)"],
+      ["くれる","kureru","to give (to me / my group)"],
+      ["もらう","morau","to receive"],
+      ["やる","yaru","to give (to lower status/animals)"],
+      ["贈る","okuru","to give as a gift"],
+      ["差し上げる","sashiageru","to give (humble/polite)"],
+      ["いただく","itadaku","to receive (humble)"],
+      ["くださる","kudasaru","to give (respectful)"],
+      ["受け取る","uketoru","to receive / accept"],
+      ["渡す","watasu","to hand over / pass"],
+      ["返す","kaesu","to return / give back"],
+    ]
+  },
+  /* 42 */ {
+    name:"Verbs — State & Change",icon:"🌱",color:"#1E8449",
+    tip:"成長する (seichō suru=to grow) is used for people, companies, and plants. 発展する (hatten suru=to develop) is more for societies/economies. 役に立つ (yaku ni tatsu=to be useful) literally means 'to stand useful'. 間に合う (ma ni au=to make it in time) is two kanji 間 (interval) + 合う (to fit).",
+    words:[
+      ["成長する","seichō suru","to grow / develop"],
+      ["発展する","hatten suru","to develop / flourish"],
+      ["修理する","shūri suru","to repair / fix"],
+      ["減る","heru","to decrease / diminish"],
+      ["足りる","tariru","to be sufficient / enough"],
+      ["役に立つ","yaku ni tatsu","to be useful"],
+      ["間に合う","ma ni au","to make it in time"],
+      ["困る","komaru","to be troubled / at a loss"],
+      ["慣れる","nareru","to get used to / accustomed"],
+      ["変化する","henka suru","to change / transform"],
+      ["完成する","kansei suru","to be completed / finished"],
+      ["失敗する","shippai suru","to fail"],
+    ]
+  },
+  /* 43 */ {
+    name:"More N4 Verbs",icon:"⚡",color:"#2C3E50",
+    tip:"触る (sawaru=to touch) takes に: 〜に触る. 踏む (fumu=to step on) takes を. 拾う (hirou=to pick up) is the opposite of 落とす (to drop). 割る (waru=to break/split) is used for dishes, rocks, and even bills (割り勘). 拭く (fuku=to wipe) is essential for cleaning.",
+    words:[
+      ["触る","sawaru","to touch"],
+      ["叩く","tataku","to hit / knock / tap"],
+      ["踏む","fumu","to step on / tread"],
+      ["持ち上げる","mochiageru","to lift up"],
+      ["投げる","nageru","to throw"],
+      ["拾う","hirou","to pick up"],
+      ["割る","waru","to break / split / divide"],
+      ["汚す","yogosu","to dirty / soil"],
+      ["拭く","fuku","to wipe / dry"],
+      ["磨く","migaku","to polish / brush (teeth)"],
+      ["押し込む","oshikomu","to push in / stuff in"],
+      ["引き出す","hikidasu","to pull out / draw out"],
+      ["貸す","kasu","to lend"],
+      ["借りる","kariru","to borrow"],
+    ]
+  },
+  /* 44 */ {
+    name:"い-Adj: Physical Properties",icon:"⚖️",color:"#1A5276",
+    tip:"Physical adjectives often come in antonym pairs: 重い/軽い (heavy/light), 硬い/柔らかい (hard/soft), 細い/太い (thin/thick), 深い/浅い (deep/shallow). Pair-learning these doubles your vocabulary instantly — if you know one, practice both.",
+    words:[
+      ["重い","omoi","heavy"],
+      ["軽い","karui","light (weight)"],
+      ["硬い","katai","hard / tough / firm"],
+      ["柔らかい","yawarakai","soft / tender"],
+      ["細い","hosoi","thin / slender / narrow"],
+      ["太い","futoi","thick / fat"],
+      ["深い","fukai","deep"],
+      ["浅い","asai","shallow"],
+      ["丸い","marui","round / circular"],
+      ["鋭い","surudoi","sharp / keen"],
+      ["鈍い","nibui","dull / blunt"],
+      ["平らな","taira na","flat / level"],
+      ["細かい","komakai","fine / detailed / small"],
+    ]
+  },
+  /* 45 */ {
+    name:"い-Adj: Emotional & Evaluative",icon:"😊",color:"#6C3483",
+    tip:"These emotional adjectives describe internal states. 恥ずかしい (hazukashii=embarrassed) is both 'embarrassing' AND 'embarrassed' — context tells you which. 羨ましい (urayamashii=envious) uses the same い-adjective form whether you're describing your own envy or calling someone enviable.",
+    words:[
+      ["正しい","tadashii","correct / right"],
+      ["珍しい","mezurashii","rare / unusual"],
+      ["厳しい","kibishi","strict / harsh / severe"],
+      ["苦しい","kurushii","painful / suffering"],
+      ["眩しい","mabushii","dazzling / bright"],
+      ["騒がしい","sawagashii","noisy / rowdy"],
+      ["悲しい","kanashii","sad"],
+      ["怖い","kowai","scary / frightened"],
+      ["すごい","sugoi","amazing / incredible"],
+      ["おかしい","okashii","strange / funny"],
+      ["もったいない","mottainai","wasteful"],
+      ["惜しい","oshii","regrettable / so close!"],
+      ["ひどい","hidoi","terrible / cruel"],
+    ]
+  },
+  /* 46 */ {
+    name:"い-Adj: Taste & Sensation",icon:"👅",color:"#884EA0",
+    tip:"Taste adjectives: 酸っぱい (suppai=sour), 苦い (nigai=bitter), 辛い (karai=spicy/hot), しょっぱい (shoppai=salty), 甘い (amai=sweet). 辛い (karai) vs つらい — same kanji, different readings: karai=spicy; tsurai=painful/difficult. Context and furigana help distinguish.",
+    words:[
+      ["酸っぱい","suppai","sour"],
+      ["苦い","nigai","bitter"],
+      ["しょっぱい","shoppai","salty"],
+      ["臭い","kusai","smelly / stinky"],
+      ["汚い","kitanai","dirty / messy"],
+      ["うるさい","urusai","noisy / annoying"],
+      ["暖かい","atatakai","warm (weather/feeling)"],
+      ["涼しい","suzushii","cool / refreshing"],
+      ["冷たい","tsumetai","cold (to the touch)"],
+      ["ぬるい","nurui","lukewarm"],
+      ["固い","katai","firm / stiff"],
+      ["ねばねばする","neba-neba suru","sticky / gooey"],
+    ]
+  },
+  /* 47 */ {
+    name:"な-Adj: Character & Society",icon:"🌐",color:"#1A5276",
+    tip:"な-adjectives modify nouns with な: 親切な人 (a kind person). Many N4 な-adjectives describe social ideals in Japan: 丁寧 (teinei=polite), 真面目 (majime=diligent), 正直 (shōjiki=honest). 複雑 (fukuzatsu=complex) appears in both everyday and academic contexts.",
+    words:[
+      ["複雑","fukuzatsu","complex / complicated"],
+      ["正確","seikaku","accurate / precise"],
+      ["適切","tekisetsu","appropriate / suitable"],
+      ["不適切","futekisetsu","inappropriate"],
+      ["必要","hitsuyō","necessary"],
+      ["大切","taisetsu","important / precious"],
+      ["幸せ","shiawase","happy / fortunate"],
+      ["不幸","fukō","unhappy / unfortunate"],
+      ["親切","shinsetsu","kind"],
+      ["丁寧","teinei","polite / careful"],
+      ["真面目","majime","serious / diligent"],
+      ["正直","shōjiki","honest"],
+      ["誠実","seijitsu","sincere / faithful"],
+    ]
+  },
+  /* 48 */ {
+    name:"な-Adj: State & Condition",icon:"🔍",color:"#17202A",
+    tip:"安全 (anzen=safe) vs 危険 (kiken=dangerous) — learn these as a pair. 十分 (jūbun=sufficient) is commonly used in both formal and casual speech. 様々 (samazama=various) combines two identical kanji — a doublet that simply means 'various kinds'.",
+    words:[
+      ["安全","anzen","safe"],
+      ["危険","kiken","dangerous"],
+      ["健康","kenkō","healthy"],
+      ["平和","heiwa","peaceful"],
+      ["混雑","konzatsu","crowded / congested"],
+      ["特別","tokubetsu","special"],
+      ["様々","samazama","various / diverse"],
+      ["十分","jūbun","sufficient / enough"],
+      ["不十分","fujūbun","insufficient"],
+      ["普通","futsū","ordinary / normal"],
+      ["奇妙","kimyō","strange / peculiar"],
+      ["貴重","kichō","precious / valuable"],
+      ["無駄","muda","wasteful / useless"],
+    ]
+  },
+  /* 49 */ {
+    name:"Adverbs — Degree & Certainty",icon:"📊",color:"#1B4F72",
+    tip:"Degree adverbs intensify or qualify. かなり (kanari=quite/considerably) is stronger than 少し but weaker than とても. やはり/やっぱり (yahari/yappari=as expected/after all) confirms what you already suspected. むしろ (mushiro=rather) introduces a preference: AよりむしろB (B rather than A).",
+    words:[
+      ["だいたい","daitai","roughly / approximately"],
+      ["なかなか","nakanaka","considerably / quite (not easily)"],
+      ["やっと","yatto","finally / at last (with effort)"],
+      ["ずっと","zutto","all along / much more / continuously"],
+      ["きっと","kitto","surely / certainly"],
+      ["ぜひ","zehi","by all means / definitely"],
+      ["ようやく","yōyaku","finally / eventually"],
+      ["やはり","yahari","as expected / after all"],
+      ["むしろ","mushiro","rather / instead"],
+      ["かなり","kanari","considerably / fairly"],
+      ["かえって","kaette","on the contrary / instead"],
+      ["だいぶ","daibu","quite / considerably"],
+      ["まさか","masaka","surely not / no way"],
+    ]
+  },
+  /* 50 */ {
+    name:"Adverbs — Time & Manner",icon:"⏱️",color:"#154360",
+    tip:"Time adverbs set up narrative flow. ついに/とうとう both mean 'finally/at last' but ついに (tsui ni) is neutral, while とうとう (tōtō) often implies something long-feared has happened. そろそろ (sorosoro=soon/gradually) politely signals it's time to leave — very useful socially!",
+    words:[
+      ["すぐに","sugu ni","immediately / right away"],
+      ["そのまま","sono mama","as it is / unchanged"],
+      ["あらかじめ","arakajime","in advance / beforehand"],
+      ["ついに","tsui ni","finally / at last"],
+      ["とうとう","tōtō","finally / in the end (long-awaited)"],
+      ["いつか","itsuka","someday"],
+      ["そのうち","sono uchi","before long / eventually"],
+      ["そろそろ","soro soro","soon / gradually / about time"],
+      ["だんだん","dandan","gradually / little by little"],
+      ["少しずつ","sukoshi zutsu","little by little"],
+      ["急に","kyū ni","suddenly"],
+      ["突然","totsuzen","all of a sudden"],
+      ["久しぶりに","hisashiburi ni","after a long time"],
+    ]
+  },
+  /* 51 */ {
+    name:"Conjunctions & Discourse",icon:"🔗",color:"#2E4057",
+    tip:"N4 conjunctions connect sentences logically. ところが (tokoro ga=however) signals an unexpected result. ところで (tokoro de=by the way) changes topic. つまり (tsumari=in other words) rephrases. したがって (shitagatte=therefore) is formal cause-and-effect. Mastering these makes your Japanese flow naturally.",
+    words:[
+      ["しかし","shikashi","however / but"],
+      ["けれども","keredomo","however / although"],
+      ["それに","sore ni","besides / in addition"],
+      ["その上","sono ue","moreover / furthermore"],
+      ["それでも","soredemo","even so / still"],
+      ["ところが","tokoro ga","however (unexpected)"],
+      ["ところで","tokoro de","by the way"],
+      ["つまり","tsumari","in other words / that is"],
+      ["したがって","shitagatte","therefore / accordingly"],
+      ["例えば","tatoeba","for example"],
+      ["なぜなら","nazenara","because / the reason is"],
+      ["その結果","sono kekka","as a result"],
+      ["一方","ippō","on the other hand"],
+    ]
+  },
+  /* 52 */ {
+    name:"N4 Grammar Expressions",icon:"📐",color:"#512E5F",
+    tip:"N4 grammar patterns work like templates. 〜ために (tame ni) means 'in order to / for the sake of'. 〜ように (yō ni) means 'so that / in the manner of'. 〜ながら (nagara) = doing X while doing Y simultaneously. 〜はず (hazu) = expected to be / should be. These few patterns open up hundreds of sentences.",
+    words:[
+      ["〜ために","〜tame ni","in order to / for the sake of"],
+      ["〜ように","〜yō ni","so that / in order to / as if"],
+      ["〜ながら","〜nagara","while doing ~ / although"],
+      ["〜ばかり","〜bakari","just / only / nothing but"],
+      ["〜さえ","〜sae","even"],
+      ["〜こそ","〜koso","(emphatic) it is precisely ~"],
+      ["〜しか〜ない","〜shika〜nai","nothing but / only (negative)"],
+      ["〜のに","〜noni","although / in spite of"],
+      ["〜はず","〜hazu","supposed to be / should be"],
+      ["〜らしい","〜rashii","seems like / apparently"],
+      ["〜てしまう","〜te shimau","to end up doing / to do completely"],
+      ["〜ておく","〜te oku","to do in advance / to leave as is"],
+    ]
+  },
+  /* 53 */ {
+    name:"Keigo & Set Phrases",icon:"🙇",color:"#1A252F",
+    tip:"Keigo (敬語) is the formal register of Japanese. お疲れ様です (otsukare sama desu) acknowledges someone's hard work — say it constantly in a Japanese workplace. かしこまりました is the most formal 'understood'. いただきます before eating and ごちそうさま after are obligatory social phrases.",
+    words:[
+      ["お疲れ様です","otsukare sama desu","Thank you for your hard work"],
+      ["ご苦労様","gokurō sama","Thank you for your trouble (to subordinate)"],
+      ["よろしくお願いします","yoroshiku onegai shimasu","Please treat me well / I'm in your care"],
+      ["失礼します","shitsurei shimasu","Excuse me / I'll take my leave"],
+      ["お先に失礼します","osaki ni shitsurei shimasu","Excuse me for leaving first"],
+      ["いらっしゃいませ","irasshaimase","Welcome! (to a customer)"],
+      ["おかげさまで","okage sama de","Thanks to you / Fortunately"],
+      ["お世話になります","osewa ni narimasu","Thank you for your support"],
+      ["申し訳ありません","mōshiwake arimasen","I'm very sorry (formal)"],
+      ["かしこまりました","kashikomarimashita","Certainly (very formal)"],
+      ["承知しました","shōchi shimashita","Understood (formal)"],
+      ["ご遠慮なく","go-enryo naku","Please don't hesitate"],
+      ["いかがでしょうか","ikaga deshō ka","How would that be? / How about...?"],
+      ["恐れ入ります","osore irimasu","I'm sorry to trouble you / Excuse me"],
+    ]
+  },
+  /* 54 */ {
+    name:"Counters Extended",icon:"🔢",color:"#1A5276",
+    tip:"Japanese has specific counters for everything. 台 (dai) for machines/vehicles; 本 (hon) for long objects (pens, bottles, roads); 枚 (mai) for flat objects (paper, stamps, shirts); 冊 (satsu) for books; 匹 (hiki) for small animals; 頭 (tō) for large animals; 羽 (wa) for birds. Learn these and counting becomes natural.",
+    words:[
+      ["〜台","〜dai","counter: machines / vehicles"],
+      ["〜本","〜hon","counter: long thin objects"],
+      ["〜枚","〜mai","counter: flat objects"],
+      ["〜冊","〜satsu","counter: bound books"],
+      ["〜杯","〜hai","counter: cups / bowls"],
+      ["〜匹","〜hiki","counter: small animals"],
+      ["〜頭","〜tō","counter: large animals"],
+      ["〜羽","〜wa","counter: birds"],
+      ["〜着","〜chaku","counter: clothing items"],
+      ["〜足","〜soku","counter: pairs of footwear"],
+      ["〜階","〜kai","counter: floors / storeys"],
+      ["〜番","〜ban","number / turn / order"],
+    ]
+  },
+  /* 55 */ {
+    name:"Compound Verbs & Expressions",icon:"🔧",color:"#145A32",
+    tip:"Compound verbs stack two verb stems: 思い出す (omo-i-dasu=to recall) = 思う (think) + 出す (put out). 乗り越える (nori-koeru=to overcome) = 乗る (ride) + 越える (go beyond). The second verb often adds directionality or completion. These are extremely common in natural Japanese.",
+    words:[
+      ["思い出す","omoidasu","to remember / recall"],
+      ["気づく","kizuku","to notice / realise"],
+      ["取り組む","torikumu","to tackle / work on"],
+      ["向き合う","mukiau","to face / confront"],
+      ["助け合う","tasukeaу","to help each other"],
+      ["付き合う","tsukiau","to go out with / associate with"],
+      ["乗り越える","norikoeru","to overcome / get over"],
+      ["引き受ける","hikiukeru","to take on / accept"],
+      ["申し込む","mōshikomu","to apply / register"],
+      ["話し合う","hanashiau","to discuss / talk over"],
+      ["立ち向かう","tachimukau","to confront / stand up to"],
+      ["働きかける","hatarakikakeru","to approach / appeal to"],
+      ["使いこなす","tsukaikonasu","to master (a tool/skill)"],
+    ]
+  },
+];
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+const state = {
+  view: 'home',
+  currentGroup: 0,
+  tab: 'cards',
+  flipped: new Set(),
+  quizState: null,
+  groupProgress: {},
+  finalQuiz: null,
+};
+
+function loadProgress() {
+  try {
+    const d = localStorage.getItem('jlpt_n4_v1');
+    if (d) {
+      const saved = JSON.parse(d);
+      if (saved.groupProgress) {
+        state.groupProgress = saved.groupProgress;
+        if (saved.view) state.view = saved.view;
+        if (saved.currentGroup != null) state.currentGroup = saved.currentGroup;
+        if (saved.tab) state.tab = saved.tab;
+      } else {
+        state.groupProgress = saved;
+      }
+    }
+  } catch(e) {}
+}
+function saveProgress() {
+  try {
+    localStorage.setItem('jlpt_n4_v1', JSON.stringify({
+      groupProgress: state.groupProgress,
+      view: state.view,
+      currentGroup: state.currentGroup,
+      tab: state.tab,
+    }));
+  } catch(e) {}
+}
+
+// ─────────────────────────────────────────────
+// QUIZ LOGIC
+// ─────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getWrongAnswers(word, pool) {
+  const others = pool.filter(w => w[2] !== word[2]);
+  if (others.length >= 3) return shuffle(others).slice(0, 3);
+  const allWords = GROUPS.flatMap(g => g.words);
+  return shuffle(allWords.filter(w => w[2] !== word[2])).slice(0, 3);
+}
+
+function buildQ(word, gi) {
+  const pool = GROUPS[gi].words;
+  const wrongs = getWrongAnswers(word, pool);
+  const choices = shuffle([word, ...wrongs]);
+  return { word, choices, correctIdx: choices.indexOf(word), answered: null };
+}
+
+function buildQuestions(wordPool, count) {
+  const picked = shuffle([...wordPool]).slice(0, count);
+  return picked.map(word => {
+    const wrongs = getWrongAnswers(word, wordPool);
+    const choices = shuffle([word, ...wrongs]);
+    return { word, choices, correctIdx: choices.indexOf(word), answered: null };
+  });
+}
+
+// Mastery quiz: recycle wrong answers until every word is correct
+function generateQuiz(gi) {
+  const words = GROUPS[gi].words;
+  const roundQueue = shuffle(words.map((_,i) => i));
+  return {
+    groupIdx: gi, words,
+    masteredIdx: new Set(),
+    roundQueue, roundPos: 0, roundNum: 1,
+    currentQ: buildQ(words[roundQueue[0]], gi),
+    totalAsked: 0, totalCorrect: 0, done: false
+  };
+}
+
+// Final quiz: 50 random questions from all groups
+function generateFinalQuiz() {
+  const all = GROUPS.flatMap(g => g.words);
+  return { questions: buildQuestions(all, 50), current: 0, score: 0, done: false };
+}
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function completedCount() {
+  return Object.values(state.groupProgress).filter(Boolean).length;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.view === 'home') app.innerHTML = renderHome();
+  else if (state.view === 'group') app.innerHTML = renderGroup();
+  else app.innerHTML = renderFinalScreen();
+  attachEvents();
+}
+
+function renderHome() {
+  const done = completedCount(), total = GROUPS.length;
+  const pct = Math.round(done / total * 100);
+  const totalWords = GROUPS.reduce((s,g) => s + g.words.length, 0);
+  const cards = GROUPS.map((g, i) => {
+    const isDone = state.groupProgress[i];
+    return `<div class="group-card${isDone?' done':''}" data-action="open-group" data-idx="${i}">
+      <div class="group-card-bar" style="background:${g.color}"></div>
+      <span class="group-card-icon">${g.icon}</span>
+      <div class="group-card-name">${g.name}</div>
+      <div class="group-card-count">${g.words.length} words</div>
+      ${isDone?'<span class="group-card-badge">✅</span>':''}
+    </div>`;
+  }).join('');
+  const unlocked = done >= Math.ceil(total * 0.4);
+  return `
+  <div class="header">
+    <div class="header-top">
+      <span class="header-title">🎌 JLPT N4 Trainer</span>
+      <span style="font-size:12px;color:#718096;font-weight:600">${pct}%</span>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    <div class="progress-text">${done} / ${total} groups · ${totalWords} total words</div>
+  </div>
+  <div class="screen animate-in">
+    <div class="section-title">Choose a Group</div>
+    <div class="groups-grid">${cards}</div>
+    <div style="margin-top:20px">
+      <div class="final-banner" style="${!unlocked?'opacity:.55':''}">
+        <h2>🏆 Final Review Quiz</h2>
+        <p>${unlocked?'50 questions from ALL groups — test your N4 mastery!':'Complete '+Math.ceil(total*.4)+' groups to unlock'}</p>
+        ${unlocked?`<button class="btn btn-ghost" style="margin-top:12px" data-action="open-final">Start Final Quiz →</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderGroup() {
+  const gi = state.currentGroup, g = GROUPS[gi];
+  const isDone = state.groupProgress[gi];
+  return `
+  <div class="header">
+    <div class="header-top">
+      <button class="back-btn" data-action="go-home">← Groups</button>
+      <span style="flex:1;text-align:center;font-size:12px;color:#718096;font-weight:600">${gi+1} / ${GROUPS.length}</span>
+      <div style="width:80px"></div>
+    </div>
+  </div>
+  <div class="screen animate-in">
+    <div class="group-hd">
+      <div class="group-hd-icon" style="background:${g.color}22">${g.icon}</div>
+      <div>
+        <div class="group-hd-name">${g.name}</div>
+        <div class="group-hd-sub">${g.words.length} words${isDone?' · ✅ Completed':''}</div>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-label">💡 Memory Tip</div>
+      ${g.tip}
+    </div>
+    <div class="tabs">
+      <button class="tab${state.tab==='cards'?' active':''}" data-action="set-tab" data-tab="cards">🃏 Flashcards</button>
+      <button class="tab${state.tab==='quiz'?' active':''}" data-action="set-tab" data-tab="quiz">📝 Mastery Quiz</button>
+    </div>
+    ${state.tab==='cards' ? renderFlashcards(gi, g) : renderQuiz(gi, g)}
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-secondary" data-action="prev-group" ${gi===0?'disabled':''}>← Prev</button>
+    <button class="btn btn-primary" data-action="next-group" ${gi===GROUPS.length-1?'disabled':''}>Next →</button>
+  </div>`;
+}
+
+function renderFlashcards(gi, g) {
+  const cards = g.words.map((w, i) => {
+    const key = `${gi}-${i}`, flip = state.flipped.has(key);
+    return `<div class="fc${flip?' flipped':''}" data-action="flip" data-key="${key}">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-kanji">${w[0]}</div>
+          <div class="fc-romaji">${w[1]}</div>
+          <div class="fc-hint">tap to reveal</div>
+        </div>
+        <div class="fc-back" style="background:${g.color}">
+          <div class="fc-meaning">${w[2]}</div>
+          <div class="fc-romaji-back">${w[1]}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  const allFlip = g.words.every((_,i) => state.flipped.has(`${gi}-${i}`));
+  const flippedCount = g.words.filter((_,i) => state.flipped.has(`${gi}-${i}`)).length;
+  return `
+    <div style="font-size:12px;color:#718096;margin-bottom:8px;text-align:right">${flippedCount}/${g.words.length} revealed</div>
+    <div class="fc-grid">${cards}</div>
+    <div class="fc-controls">
+      <button class="btn btn-secondary" style="font-size:13px" data-action="flip-all">${allFlip?'↺ Reset':'👁 Reveal All'}</button>
+      <button class="btn btn-primary" style="font-size:13px" data-action="set-tab" data-tab="quiz">Quiz All ${g.words.length} →</button>
+    </div>`;
+}
+
+function renderQuiz(gi, g) {
+  const qs = state.quizState;
+  if (!qs || qs.groupIdx !== gi) {
+    return `<div class="quiz-wrap" style="text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">📝</div>
+      <p style="color:#4a5568;margin-bottom:6px;font-size:14px"><strong>Mastery Quiz</strong> — ${g.words.length} words in ${g.name}.</p>
+      <p style="color:#718096;margin-bottom:18px;font-size:13px">Wrong answers come back. Quiz ends only when every word is correct.</p>
+      <button class="btn btn-primary btn-block" data-action="start-quiz">Start Mastery Quiz</button>
+    </div>`;
+  }
+  if (qs.done) return renderQuizResult(qs, g);
+  const q = qs.currentQ;
+  const masteredPct = Math.round(qs.masteredIdx.size / qs.words.length * 100);
+  const cbs = q.choices.map((c,i) => {
+    let cls = 'qc', dis = '';
+    if (q.answered !== null) {
+      dis = 'disabled';
+      if (i === q.correctIdx) cls += ' correct';
+      else if (i === q.answered) cls += ' wrong';
+    }
+    return `<button class="${cls}" data-action="answer" data-idx="${i}" ${dis}>${c[2]}</button>`;
+  }).join('');
+  return `<div class="quiz-wrap">
+    <div class="quiz-meta">
+      <span>Round ${qs.roundNum} · ${qs.roundPos+1}/${qs.roundQueue.length}</span>
+      <span>✅ ${qs.masteredIdx.size}/${qs.words.length} mastered</span>
+    </div>
+    <div class="quiz-mini-bar"><div class="quiz-mini-fill" style="width:${masteredPct}%"></div></div>
+    <div class="quiz-word">${q.word[0]}</div>
+    <div class="quiz-romaji">${q.word[1]}</div>
+    <div class="quiz-prompt">What does this mean?</div>
+    <div class="quiz-choices">${cbs}</div>
+  </div>`;
+}
+
+function renderQuizResult(qs, g) {
+  const acc = qs.totalAsked ? Math.round(qs.totalCorrect / qs.totalAsked * 100) : 100;
+  const msg = qs.roundNum === 1 ? '🎉 Perfect — first try on every word!' : qs.roundNum === 2 ? '🌟 Excellent — mastered in 2 rounds!' : `👍 Mastered in ${qs.roundNum} rounds!`;
+  return `<div class="quiz-wrap">
+    <div class="quiz-result">
+      <div style="font-size:40px;margin-bottom:6px">🎉</div>
+      <div class="result-score">${qs.words.length}/${qs.words.length}</div>
+      <div class="result-pct">All words mastered · ${acc}% accuracy</div>
+      <div class="result-msg">${msg}</div>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn btn-secondary" data-action="retry-quiz">↺ Retry</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── FINAL QUIZ ────────────────────────────────
+function renderFinalScreen() {
+  const hdr = `<div class="header">
+    <div class="header-top">
+      <button class="back-btn" data-action="go-home">← Back</button>
+      <span style="flex:1;text-align:center;font-weight:800;color:#1a5276">🏆 Final Quiz</span>
+      <div style="width:80px"></div>
+    </div>
+  </div>`;
+  if (!state.finalQuiz) {
+    return `${hdr}<div class="screen animate-in">
+      <div class="final-banner">
+        <h2>🏆 Final Review Quiz</h2>
+        <p>50 questions drawn randomly from all ${GROUPS.length} groups. Good luck!</p>
+      </div>
+      <button class="btn btn-primary btn-block" data-action="start-final-now">Start Quiz (50 questions)</button>
+    </div>`;
+  }
+  const fq = state.finalQuiz;
+  if (fq.done) {
+    const s = fq.score, t = fq.questions.length, p = Math.round(s/t*100);
+    const msg = p>=90?'🎉 Master level!':p>=70?'🌟 Excellent!':p>=50?'👍 Good work!':'📚 Keep studying!';
+    return `${hdr}<div class="screen animate-in">
+      <div class="quiz-wrap">
+        <div class="quiz-result">
+          <div style="font-size:18px;font-weight:800;margin-bottom:8px">Final Results</div>
+          <div class="result-score">${s}/${t}</div>
+          <div class="result-pct">${p}%</div>
+          <div class="result-msg">${msg}</div>
+          <div class="btn-row">
+            <button class="btn btn-secondary" data-action="go-home">🏠 Home</button>
+            <button class="btn btn-primary" data-action="restart-final">↺ Retry</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+  const q = fq.questions[fq.current];
+  const pct = Math.round(fq.current / fq.questions.length * 100);
+  const cbs = q.choices.map((c,i) => {
+    let cls = 'qc', dis = '';
+    if (q.answered !== null) {
+      dis = 'disabled';
+      if (i === q.correctIdx) cls += ' correct';
+      else if (i === q.answered) cls += ' wrong';
+    }
+    return `<button class="${cls}" data-action="answer-final" data-idx="${i}" ${dis}>${c[2]}</button>`;
+  }).join('');
+  return `${hdr}<div class="screen animate-in">
+    <div class="quiz-wrap">
+      <div class="quiz-meta">
+        <span>Q${fq.current+1} / ${fq.questions.length}</span>
+        <span>✅ ${fq.score} &nbsp;❌ ${fq.current - fq.score}</span>
+      </div>
+      <div class="quiz-mini-bar"><div class="quiz-mini-fill" style="width:${pct}%"></div></div>
+      <div class="quiz-word">${q.word[0]}</div>
+      <div class="quiz-romaji">${q.word[1]}</div>
+      <div class="quiz-prompt">What does this mean?</div>
+      <div class="quiz-choices">${cbs}</div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// EVENTS
+// ─────────────────────────────────────────────
+let _autoTimer = null;
+function scheduleAdvance(action) {
+  clearTimeout(_autoTimer);
+  _autoTimer = setTimeout(() => { handleClick({ currentTarget: { dataset: { action } } }); }, 1200);
+}
+
+function attachEvents() {
+  document.querySelectorAll('[data-action]').forEach(el => el.addEventListener('click', handleClick));
+}
+
+function handleClick(e) {
+  const a = e.currentTarget.dataset.action;
+  if (a === 'open-group') {
+    state.currentGroup = +e.currentTarget.dataset.idx;
+    state.view = 'group'; state.tab = 'cards';
+    state.flipped = new Set(); state.quizState = null;
+    saveProgress(); render(); scrollTo(0,0);
+  } else if (a === 'go-home') {
+    state.view = 'home'; saveProgress(); render(); scrollTo(0,0);
+  } else if (a === 'set-tab') {
+    state.tab = e.currentTarget.dataset.tab; saveProgress(); render();
+  } else if (a === 'flip') {
+    const k = e.currentTarget.dataset.key;
+    state.flipped.has(k) ? state.flipped.delete(k) : state.flipped.add(k);
+    e.currentTarget.classList.toggle('flipped');
+    const gi = state.currentGroup, g = GROUPS[gi];
+    const cnt = g.words.filter((_,i) => state.flipped.has(`${gi}-${i}`)).length;
+    const el = document.querySelector('.fc-grid').previousElementSibling;
+    if (el) el.textContent = `${cnt}/${g.words.length} revealed`;
+    const allF = cnt === g.words.length;
+    const btn = document.querySelector('[data-action="flip-all"]');
+    if (btn) btn.textContent = allF ? '↺ Reset' : '👁 Reveal All';
+  } else if (a === 'flip-all') {
+    const gi = state.currentGroup, g = GROUPS[gi];
+    const allF = g.words.every((_,i) => state.flipped.has(`${gi}-${i}`));
+    g.words.forEach((_,i) => allF ? state.flipped.delete(`${gi}-${i}`) : state.flipped.add(`${gi}-${i}`));
+    render();
+  } else if (a === 'start-quiz') {
+    clearTimeout(_autoTimer); state.quizState = generateQuiz(state.currentGroup); render();
+  } else if (a === 'retry-quiz') {
+    clearTimeout(_autoTimer); state.quizState = null; render();
+  } else if (a === 'answer') {
+    const qs = state.quizState;
+    if (!qs || qs.done) return;
+    const q = qs.currentQ;
+    if (q.answered !== null) return;
+    const idx = +e.currentTarget.dataset.idx;
+    q.answered = idx;
+    qs.totalAsked++;
+    if (idx === q.correctIdx) { qs.totalCorrect++; qs.masteredIdx.add(qs.roundQueue[qs.roundPos]); }
+    render();
+    scheduleAdvance('next-q');
+  } else if (a === 'next-q') {
+    clearTimeout(_autoTimer);
+    const qs = state.quizState;
+    qs.roundPos++;
+    if (qs.roundPos >= qs.roundQueue.length) {
+      const unmastered = qs.words.map((_,i) => i).filter(i => !qs.masteredIdx.has(i));
+      if (unmastered.length === 0) {
+        qs.done = true;
+        state.groupProgress[state.currentGroup] = true; saveProgress();
+      } else {
+        qs.roundQueue = shuffle(unmastered);
+        qs.roundPos = 0; qs.roundNum++;
+        qs.currentQ = buildQ(qs.words[qs.roundQueue[0]], qs.groupIdx);
+      }
+    } else {
+      qs.currentQ = buildQ(qs.words[qs.roundQueue[qs.roundPos]], qs.groupIdx);
+    }
+    render();
+  } else if (a === 'prev-group') {
+    if (state.currentGroup > 0) { state.currentGroup--; state.tab='cards'; state.flipped=new Set(); state.quizState=null; saveProgress(); render(); scrollTo(0,0); }
+  } else if (a === 'next-group') {
+    if (state.currentGroup < GROUPS.length-1) { state.currentGroup++; state.tab='cards'; state.flipped=new Set(); state.quizState=null; saveProgress(); render(); scrollTo(0,0); }
+  } else if (a === 'open-final') {
+    state.view = 'final'; state.finalQuiz = null; saveProgress(); render(); scrollTo(0,0);
+  } else if (a === 'start-final-now') {
+    state.finalQuiz = generateFinalQuiz(); render();
+  } else if (a === 'answer-final') {
+    const fq = state.finalQuiz;
+    if (!fq || fq.done) return;
+    const q = fq.questions[fq.current];
+    if (q.answered !== null) return;
+    const idx = +e.currentTarget.dataset.idx;
+    q.answered = idx;
+    if (idx === q.correctIdx) fq.score++;
+    render();
+    scheduleAdvance('next-final');
+  } else if (a === 'next-final') {
+    clearTimeout(_autoTimer);
+    state.finalQuiz.current++;
+    if (state.finalQuiz.current >= state.finalQuiz.questions.length) state.finalQuiz.done = true;
+    render();
+  } else if (a === 'restart-final') {
+    state.finalQuiz = null; render();
+  }
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+loadProgress();
+render();
+</script>
+</body>
+</html>
